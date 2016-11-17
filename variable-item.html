@@ -1,0 +1,207 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/paper-styles.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<!--
+# The `variable-item`
+It is a variable list item to be displayed in the `<variable-editor>`.
+
+### Example
+```
+<variables-editor>
+  <variable-item></variable-item>
+</variables-editor>
+```
+
+### Styling
+`<variable-item>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--variable-item` | Mixin applied to the element | `{}`
+`--variable-item-name-input` | Mixin applied to the `paper-input` for variable name | `{}`
+`--variable-item-value-input` | Mixin applied to the `paper-input` for variable value | `{}`
+`--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
+`--variable-item-remove-button` | Mixin applied to the remove icon button | `{}`
+
+@group UI Elements
+@element variables-editor
+@demo demo/index.html
+-->
+<dom-module id="variable-item">
+  <template>
+    <style>
+    :host {
+      display: block;
+      @apply(--variable-item);
+    }
+
+    #container {
+      @apply(--layout-horizontal);
+      @apply(--layout-flex);
+      @apply(--layout-end);
+    }
+
+    .variable-name {
+      margin-right: 12px;
+      @apply(--variable-item-name-input);
+    }
+
+    .variable-value {
+      @apply(--layout-flex);
+      @apply(--variable-item-value-input);
+    }
+
+    paper-checkbox {
+      margin-bottom: 12px;
+      @apply(--variable-item-checkbox);
+    }
+
+    .remove-button {
+      margin-bottom: 4px;
+      @apply(--variable-item-remove-button);
+    }
+    </style>
+    <div id="container">
+      <paper-checkbox checked="{{item.enabled}}" title="Enabled"></paper-checkbox>
+      <paper-input-container class="variable-name" no-label-float inline auto-validate>
+        <input is="iron-input" type="text" value="{{item.variable::input}}" placeholder="Variable name" required allowed-pattern="[a-zA-Z0-9_-]" prevent-invalid-input/>
+        <paper-input-error>Variable name is not valid</paper-input-error>
+      </paper-input-container>
+      <paper-input-container class="variable-value" no-label-float inline auto-validate>
+        <input is="iron-input" type="text" value="{{item.value::input}}" placeholder="Variable value" required />
+        <paper-input-error>Variable value should not be empty</paper-input-error>
+        <!-- <paper-icon-button suffix icon="arc:edit" title="Edit variable value in the editor" on-tap="_openVariableEditor"></paper-icon-button> -->
+      </paper-input-container>
+      <paper-icon-button class="remove-button" icon="close" title="Remove variable" on-tap="_removeVariable"></paper-icon-button>
+    </div>
+    <paper-toast text="Model not found. Please, report an issue." id="noModel"></paper-toast>
+    <paper-toast text="" id="errorToast" duration="5000"></paper-toast>
+  </template>
+  <script>
+  (function() {
+    Polymer({
+      is: 'variable-item',
+      /**
+       * Fired when the variable has been removed from the data-store.
+       * Event should be handled by the `variables-editor` to remove it from the UI.
+       *
+       * @event variable-deleted
+       * @param {String} id Variable ID
+       */
+      /**
+       * Fired when not-saved variable has ben requested to be removed.
+       *
+       * @event variable-remove
+       */
+      properties: {
+        /**
+         * A variable database object.
+         * Initially it will contain an _id and _rev object and data will be get from the database.
+         * Special case is when creating new variable. It will then contain an initial data but no ID.
+         */
+        item: Object,
+        // A list of names that are restricted
+        reservedNames: {
+          type: Array,
+          value: function() {
+            return ['now', 'random'];
+          }
+        }
+      },
+
+      listeners: {
+        'change': '_somethingChanged',
+        'input': '_somethingChanged'
+      },
+      // Called when any `item` propery change
+      _somethingChanged: function() {
+        if (this._saving) {
+          this._updatePending = true;
+          return;
+        }
+
+        var i = this.item;
+        if (i.variable && i.value) {
+          var context = this;
+          this.set('item.enabled', true);
+          this.debounce('variable-item-update', function() {
+            context._updateItem();
+          }, 350);
+        }
+      },
+      // Requests `item` save in the database.
+      _updateItem: function() {
+        this._saving = true;
+        var event = this.fire('variables-model-insert', {
+          doc: this.item
+        });
+        if (event.detail.error || !event.detail.result) {
+          this.$.noModel.opened = true;
+          return;
+        }
+        var context = this;
+        event.detail.result.then(function(doc) {
+          context.set('item._id', doc._id);
+          context.set('item._rev', doc._rev);
+          if (context._updatePending) {
+            context.async(function() {
+              this._updateItem();
+            }, 1);
+          } else {
+            context._saving = false;
+          }
+        })
+        .catch(function(e) {
+          context.$.errorToast.text = 'Error save data: ' + e.message;
+          context.$.errorToast.opened = true;
+        });
+      },
+      // Handler for the remove button click.
+      _removeVariable: function() {
+        var id = this.item._id;
+        if (!id) {
+          return this.fire('variable-remove');
+        }
+        var event = this.fire('variables-model-delete', {
+          doc: this.item
+        });
+        if (event.detail.error || !event.detail.result) {
+          this.$.noModel.opened = true;
+          return;
+        }
+        var context = this;
+        event.detail.result
+        .then(function() {
+          context.fire('variable-deleted', {
+            id: id
+          });
+        })
+        .catch(function(e) {
+          context.$.errorToast.text = 'Error save data: ' + e.message;
+          context.$.errorToast.opened = true;
+        });
+      }
+    });
+
+  })();
+  </script>
+</dom-module>

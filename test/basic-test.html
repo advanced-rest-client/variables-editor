@@ -1,0 +1,127 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <script src="../../chance/dist/chance.min.js"></script>
+    <script src="data-generator.js"></script>
+    <link rel="import" href="../variables-editor.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <variables-editor></variables-editor>
+      </template>
+    </test-fixture>
+
+    <script>
+    // jshint ignore: start
+    suite('basic', function() {
+      var randomEnvs;
+      var randomVars;
+      var editor;
+
+      suiteSetup(function() {
+        randomEnvs = dataGenerator.environments();
+        randomVars = dataGenerator.variables();
+      });
+
+      setup(function() {
+        editor = fixture('basic');
+      });
+
+      test('Should display environments', function(done) {
+        editor.environments = randomEnvs;
+        flush(function() {
+          var listItems = Polymer.dom(editor.root).querySelectorAll('paper-item');
+          assert.equal(randomEnvs.length, listItems.length - 1);
+          done();
+        });
+      });
+
+      test('Should display docs', function(done) {
+        editor.environments = randomEnvs;
+        flush(function() {
+          assert.equal(editor.noVariables, true);
+          var doc = Polymer.dom(editor.root).querySelector('.doc-frame');
+          assert.notEqual(doc, null);
+          done();
+        });
+      });
+
+      test('Should display variables', function(done) {
+        editor.variables = randomVars;
+        flush(function() {
+          var listItems = Polymer.dom(editor.root).querySelectorAll('variable-item');
+          assert.lengthOf(listItems, randomVars.length);
+          done();
+        });
+      });
+
+      test('Add environment button opens editor', function(done) {
+        var button = Polymer.dom(editor.root).querySelector('.add-button.add-env');
+        MockInteractions.tap(button);
+        flush(function() {
+          var collapse = Polymer.dom(editor.root).querySelectorAll('#editor');
+          assert.equal(editor.envEditorOpened, true);
+          done();
+        });
+      });
+
+      test('Environment change requests variables', function() {
+        var spy = sinon.stub();
+        editor.addEventListener('variables-model-query', spy);
+        editor.currentEnvironment = 'test';
+        assert.isTrue(spy.calledOnce, 'variables-model-query was not fired');
+      });
+
+      test('Add variable button adds new variable and opens list view', function(done) {
+        var button = Polymer.dom(editor.root).querySelector('.add-button.add-var');
+        MockInteractions.tap(button);
+        assert.lengthOf(editor.variables, 1);
+        assert.deepEqual(editor.variables[0], {environment: 'default', enabled: false});
+        flush(function() {
+          var doc = Polymer.dom(editor.root).querySelector('.doc-frame');
+          assert.isNull(doc);
+          var listItems = Polymer.dom(editor.root).querySelectorAll('variable-item');
+          assert.lengthOf(listItems, 1);
+          done();
+        });
+      });
+
+      test('Change variable state triggers save event', function(done) {
+        editor.variables = randomVars;
+        var spy = sinon.stub();
+        editor.addEventListener('variables-model-insert', spy);
+        flush(function() {
+          var item = Polymer.dom(editor.root).querySelector('variable-item');
+          assert.isNotNull(item);
+          var box = Polymer.dom(item.root).querySelector('paper-checkbox');
+          MockInteractions.tap(box);
+          window.setTimeout(function() {
+            assert.isTrue(spy.calledOnce, 'variables-model-insert was not fired');
+            done();
+          }, 400);
+        });
+      });
+
+    });
+    </script>
+
+  </body>
+</html>
