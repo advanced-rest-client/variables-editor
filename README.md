@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/advanced-rest-client/variables-editor.svg?branch=master)](https://travis-ci.org/advanced-rest-client/variables-editor)  
+
+# variables-editor
 
 # `<variables-editor>`
 A variables editor element is an UI element to display existing variables and forms to edit them.
