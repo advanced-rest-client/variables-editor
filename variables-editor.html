@@ -15,52 +15,63 @@ the License.
 <link rel="import" href="../paper-styles/paper-styles.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <link rel="import" href="variable-item.html">
 <!--
 # `<variables-editor>`
-A variables editor element is an UI element to display existing variables and forms to edit them.
 
-This is only an UI element and it is not responsible for managing data state. It cooperates with
-the `arc-models` elements and use HTML event system to exchange data.
-See demo page for an example of use.
+A variables editor is an element to render UI for `variables-manager`.
 
-If `arc-models` can't be used then replacements must to support events fired by this element:
-- variables-env-model-insert
-- variables-env-model-query
-- variables-env-model-delete
-- variables-model-query
-- variables-model-delete
-- variables-model-insert
+It displays list of user defined environments and variables associated with the
+environment.
+
+This element requires compatible variables manager to be present in the DOM. It
+uses browser event system to communicate with the manager. See `variables-manager`
+documentation for detailed API for data exchange.
 
 ### Example
+
 ```
 <variables-editor></variables-editor>
+<variables-manager></variables-manager>
 ```
 
 ### Styling
+
 `<variables-editor>` provides the following custom properties and mixins for styling:
 
 Custom property | Description | Default
 ----------------|-------------|----------
 `--variables-editor` | Mixin applied to the element | `{}`
-`--variables-editor-variables-info-color` | Color of the info text below environment selector | `rgba(0, 0, 0, 0.54)`
-`--variables-editor-variables-info-font-size` | Font size of the info text below environment selector | `14px`
-`--variables-editor-add-color` | Color of the `add` buttons (icons) | `--primary-color`
+`--variables-editor-add-color` | Color of the `add` button | `--primary-color`
+`--variables-editor-add-environment-color` | Color of the add environment icon button | `rgba(0, 0, 0, 0.54)`
+`--variables-editor-add-environment-color-hover | Color of the add environment icon button when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
 `--variables-editor-remove-env-color` | Color of the remove button (icon) | `rgba(0, 0, 0, 0.24)`
 `--variables-editor-remove-env-color-hover` | Color of the hovered remove button (icon) | `#e64a19`
 `--accent-color` | Background color of the primary action button | ``
 `--primary-light-color` | Color of the primary action button | `#fff`
-`--variables-editor-docs-frame` | Mixin applied to the help section when there is no variables defined for the environment | `{}`
 `--variables-editor-docs-frame-content` | Mixin applied to the colored content container of the help section. | `{}`
 `--variables-editor-docs-frame-content-background` | Background color of the help section content container. | `#E1F5FE`
-`--variables-editor-docs-frame-content-font-size` | Font size  of the help section content container. | `15px`
+`--arc-font-title` | Theme mixin, applied to the tutorial title | `{}`
+`--arc-font-body1` | Theme mixin, applied to text labels | `{}`
+`--variables-editor-primary-button-background-color` | Background color of the primary action button | `--accent-color`
+`--variables-editor-primary-button-color` | Color of the primary action button | `--primary-light-color` or `#fff`
+`--primary-button` | Mixin applied to the primary button | `{}`
+`--variable-item` | Mixin applied to the variable item container | `{}`
+`--variable-item-name-input` | Mixin applied to the `paper-input` for variable name | `{}`
+`--variable-item-value-input` | Mixin applied to the `paper-input` for variable value | `{}`
+`--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
+`--inline-fom-action-icon-color` | Theme variable, color of the delete variable icon | `rgba(0, 0, 0, 0.74)`
+`--inline-fom-action-icon-color-hover` | Theme variable, color of the delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
 
 @group UI Elements
 @element variables-editor
@@ -73,68 +84,71 @@ Custom property | Description | Default
       display: block;
       padding: 12px;
       @apply(--variables-editor);
-    }
-
-    .env-info {
-      @apply(--layout-horizontal);
-      @apply(--layout-center);
-      @apply(--paper-font-body1);
-      color: var(--variables-editor-variables-info-font-size, 14px);
-      color: var(--variables-editor-variables-info-color, rgba(0, 0, 0, 0.54));
-    }
-
-    .env-info iron-icon {
-      width: 16px;
-      height: 16px;
-      margin-right: 8px;
+      --button-transition: color 0.2s linear;
     }
 
     .add-button {
+      transition: var(--button-transition);
       color: var(--variables-editor-add-color, --primary-color);
     }
 
     .add-env {
-      vertical-align: bottom;
+      transition: var(--button-transition);
+      color: var(--variables-editor-add-environment-color, rgba(0, 0, 0, 0.54));
     }
 
-    .primary-button {
-      background-color: var(--accent-color);
-      color: var(--primary-light-color, #fff);
-      @apply(--primary-button);
+    .add-env:hover {
+      color: var(--variables-editor-add-environment-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
+    }
+
+    .info-button {
+      transition: var(--button-transition);
+      color: var(--variables-editor-info-button-color, rgba(0, 0, 0, 0.54));
+    }
+
+    .info-button:hover {
+      color: var(--variables-editor-info-button-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
     }
 
     .remove-button {
-      color: var(--variables-editor-remove-env-color, rgba(0, 0, 0, 0.24));
-      transition: color 0.2s linear;
+      color: var(--variables-editor-remove-env-color, rgba(0, 0, 0, 0.54));
+      transition: var(--button-transition);
     }
 
     .remove-button:hover {
-      color: var(--variables-editor-remove-env-color-hover, #e64a19);
+      color: var(--variables-editor-remove-env-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
+    }
+
+    .primary-button {
+      background-color: var(--variables-editor-primary-button-background-color, --accent-color);
+      color: var(--variables-editor-primary-button-color, var(--primary-light-color, #fff));
+      @apply(--primary-button);
     }
 
     .env-selector {
       @apply(--layout-horizontal);
       @apply(--layout-wrap);
+      margin-bottom: 20px;
     }
 
     .env-selector paper-icon-button {
-      align-self: flex-end;
+      align-self: center;
     }
 
     .app-link {
       text-decoration: none;
+      color: inherit;
     }
 
     .help {
       @apply(--layout-horizontal);
       @apply(--layout-center);
-      @apply(--variables-editor-docs-frame);
     }
 
     .doc-frame {
       padding: 24px;
       background-color: var(--variables-editor-docs-frame-content-background, #E1F5FE);
-      font-size: var(--variables-editor-docs-frame-content-font-size, 15px);
+      @apply(--arc-font-body1);
       @apply(--variables-editor-docs-frame-content);
     }
 
@@ -142,195 +156,356 @@ Custom property | Description | Default
       @apply(--layout-flex);
     }
 
+    .add-editor {
+      margin: 40px 0;
+      background-color: var(--variables-editor-add-environment-content-background-color, #f5f5f5);
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-bottom: 20px;
+      @apply(--variables-editor-add-environment-content);
+    }
+
+    #editorEnvName {
+      margin-bottom: 20px;
+    }
+
+    .tutorial-title {
+      margin-top: 0;
+      @apply(--arc-font-title);
+    }
+
+    .tutorial-link {
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+
+    .text-link {
+      color: rgba(0, 0, 0, 0.74);
+    }
+
+    .tutorial-link iron-icon {
+      width: 16px;
+      height: 16px;
+      color: rgba(0, 0, 0, 0.74);
+    }
     </style>
     <section>
-
       <div class="env-selector">
         <paper-dropdown-menu label="Environment">
-          <paper-listbox class="dropdown-content" selected="{{currentEnvironment}}" attr-for-selected="data-environment">
-            <paper-item data-environment="default">Default</paper-item>
-            <template is="dom-repeat" items="[[environments]]">
-              <paper-item data-environment="[[item.name]]">[[item.name]]</paper-item>
+          <paper-listbox class="dropdown-content" selected="{{environment}}" attr-for-selected="value">
+            <paper-item value="default">Default</paper-item>
+            <template is="dom-repeat" items="[[environments]]" id="envRepeater">
+              <paper-item value$="[[item.name]]">[[item.name]]</paper-item>
             </template>
           </paper-listbox>
         </paper-dropdown-menu>
-        <paper-icon-button on-tap="addEnvironment" class="add-button add-env" title="Add new environment" icon="arc:add-circle-outline"></paper-icon-button>
-        <paper-icon-button hidden$="[[hideRemoved]]" on-tap="removeEnvironment" class="remove-button" title="Remove this environment" icon="arc:remove-circle-outline"></paper-icon-button>
+        <paper-icon-button id="addEnvBtn" on-tap="addEnvironment" class="add-env" icon="arc:add-circle-outline"></paper-icon-button>
+        <paper-tooltip for="addEnvBtn" animation-delay="200">Add new environment</paper-tooltip>
+        <template is="dom-if" if="[[allowRemove]]">
+          <paper-icon-button id="delEnvBtn" on-tap="_deleteEnvironment" class="remove-button" icon="arc:remove-circle-outline"></paper-icon-button>
+          <paper-tooltip for="delEnvBtn" animation-delay="200">Remove selected environment and variables</paper-tooltip>
+        </template>
+
         <div class="flex"></div>
-        <div class="help" hidden$="[[noVariables]]">
-          <p>Learn more about the variables and environments</p>
+
+        <div class="help" hidden$="[[!hasVariables]]">
           <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link">
-            <paper-button raised class="primary-button">Learn more</paper-button>
+            <paper-icon-button class="info-button" raised icon="arc:help-outline"></paper-icon-button>
+            <paper-tooltip animation-delay="200" fit-to-visible-bounds>Learn more about variables</paper-tooltip>
           </a>
         </div>
-      </div>
 
+      </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
           <paper-input id="editorEnvName" label="Environment name" error-message="Name is required" required auto-validate></paper-input>
-          <paper-button on-tap="addEnvSave" class="primary-button">Save environment</paper-button>
-          <paper-button on-tap="cancelAddEnvironment" class="">Cancel</paper-button>
+          <paper-button on-tap="_addEnvironment" class="primary-button">Save environment</paper-button>
+          <paper-button on-tap="_cancelAddEnvironment" class="">Cancel</paper-button>
         </div>
       </iron-collapse>
-
-      <div class="env-info">
-        <iron-icon icon="arc:info-outline"></iron-icon>
-        <p>Selected environment will be applied to current request</p>
-      </div>
     </section>
-    <section>
+    <section hidden$="[[envEditorOpened]]">
       <template is="dom-repeat" items="[[variables]]" id="repeater">
-        <variable-item item="[[item]]"></variable-item>
+        <variable-item item="[[item]]" on-empty-variable-remove="_removeEmptyVariable"></variable-item>
       </template>
-      <template is="dom-if" if="[[noVariables]]" restamp="true">
+      <template is="dom-if" if="[[!hasVariables]]">
         <div class="doc-frame">
+          <h4 class="tutorial-title"><iron-icon icon="arc:code"></iron-icon> Upgrade request with variables</h4>
+          <svg width="180" height="120" viewBox="0 0 180 120">
+            <g transform="translate(0,-932.36216)">
+              <rect style="fill:#4d4d4d;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="180" height="120" x="0" y="932.65906" />
+              <rect style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="50.002552" height="6.8185296" x="3.0304575" y="936.95221" />
+              <rect y="951.01013" x="3.0304575" height="6.8185296" width="35.355339" style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              <rect style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="43.436558" height="6.8185296" x="3.0304575" y="965.06812" />
+              <rect y="979.12604" x="3.0304575" height="6.8185296" width="26.011429" style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              <rect y="936.19458" x="58.841385" height="111.11678" width="115.91501" style="fill:#666666;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              <rect y="940.23523" x="65.659912" height="6.8185296" width="102.02541" style="fill:#ffaaaa;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              <rect style="fill:#ffaaaa;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="102.02541" height="18.940361" x="65.659912" y="965.23651" />
+              <rect style="fill:#ffaaaa;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="102.02541" height="6.8185296" x="65.659912" y="952.73584" />
+              <rect style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="16.414978" height="6.8185301" x="77.276672" y="952.70428" />
+              <rect y="940.20428" x="151.20525" height="6.8185301" width="16.414978" style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+              <rect style="fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.80199999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" width="16.414978" height="6.8185301" x="90.848106" y="967.34717" />
+            </g>
+          </svg>
           <p>Create variables and insert them into the request.</p>
-          <p>Just put variable name in format <i>${variable name}</i> into any request field and the value will be inserted at run time.</p>
-          <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link">
-            <paper-button raised class="primary-button">Learn more</paper-button>
-          </a>
+          <p>Usage: Put <code>${variable name}</code> into any request field and the value will be inserted at run time.</p>
+          <paper-button raised class="primary-button" on-tap="_addVariable">add variable</paper-button>
+          <p class="tutorial-link">
+            <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="text-link">Learn more about variables.</a>
+            <iron-icon icon="arc:open-in-new"></iron-icon>
+          </p>
         </div>
       </template>
     </section>
-    <section>
+    <section hidden$="[[_computeAddButtonHidden(envEditorOpened, hasVariables)]]">
       <paper-button class="add-button add-var" on-tap="_addVariable">add variable</paper-button>
     </section>
     <paper-toast text="" id="infoToast"></paper-toast>
-    <paper-toast text="Model not found. Please, report an issue." id="noModel"></paper-toast>
-    <paper-toast text="" id="errorToast" duration="5000"></paper-toast>
   </template>
   <script>
-  if (!Array.prototype.findIndex) {
-    Object.defineProperty(Array.prototype, 'findIndex', {
-      value: function(predicate) {
-        'use strict';
-        if (this === null) {
-          throw new TypeError('Array.prototype.findIndex called on null or undefined');
-        }
-        if (typeof predicate !== 'function') {
-          throw new TypeError('predicate must be a function');
-        }
-        var list = Object(this);
-        var length = list.length >>> 0;
-        var thisArg = arguments[1];
-        var value;
-
-        for (var i = 0; i < length; i++) {
-          value = list[i];
-          if (predicate.call(thisArg, value, i, list)) {
-            return i;
-          }
-        }
-        return -1;
-      },
-      enumerable: false,
-      configurable: false,
-      writable: false
-    });
-  }
   (function() {
     Polymer({
       is: 'variables-editor',
 
       properties: {
-        currentEnvironment: {
-          type: String,
-          value: 'default',
-        },
-
-        variables: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-
-        environments: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-
-        noVariables: {
+        /**
+         * Currently selected environment.
+         */
+        environment: String,
+        /**
+         * List of available variables for the environment.
+         */
+        variables: Array,
+        /**
+         * List of user defined environments.
+         */
+        environments: Array,
+        /**
+         * Computed value, true is variables are available for current
+         * environment.
+         */
+        hasVariables: {
           type: Boolean,
-          value: true,
-          computed: '_computeNoVariables(variables.*)'
+          value: false,
+          computed: '_computeHasVariables(variables.*)'
         },
-
-        hideRemoved: {
+        /**
+         * Computed value, set to tru if the environment can be removed.
+         * Only `default` environment can't be deleted
+         */
+        allowRemove: {
           type: Boolean,
-          value: true,
-          computed: '_computeHideRemoved(currentEnvironment)'
+          computed: '_computeAllowRemove(environment)'
         },
-
+        // True if the environment editor is opened.
         envEditorOpened: {
           type: Boolean,
           value: false
         }
       },
 
-      listeners: {
-        'variable-deleted': '_onVariableDeleted',
-        'variable-remove': '_removeVeriableFromUI'
-      },
-
       observers: [
-        '_envChanged(currentEnvironment)'
+        '_environmentChanged(environment)'
       ],
 
       attached: function() {
+        this._requestCurrentEnvironment();
         this._refreshEnvironments();
+
+        this.listen(window, 'environment-deleted', '_envDeletedHandler');
+        this.listen(window, 'environment-updated', '_envUpdatedHandler');
+        this.listen(window, 'environments-list-changed', '_envListUpdatedHandler');
+        this.listen(window, 'selected-environment-changed', '_envChangedHandler');
+        this.listen(window, 'variable-deleted', '_varDeletedHandler');
+        this.listen(window, 'variable-updated', '_varUpdateHandler');
+        this.listen(window, 'variables-list-changed', '_varListChangedHandler');
       },
 
-      _computeNoVariables: function() {
-        if (!this.variables || !this.variables.length) {
-          return true;
-        }
-        return false;
+      detached: function() {
+        this.unlisten(window, 'environment-deleted', '_envDeletedHandler');
+        this.unlisten(window, 'environment-updated', '_envUpdatedHandler');
+        this.unlisten(window, 'environments-list-changed', '_envListUpdatedHandler');
+        this.unlisten(window, 'selected-environment-changed', '_envChangedHandler');
+        this.unlisten(window, 'variable-deleted', '_varDeletedHandler');
+        this.unlisten(window, 'variable-updated', '_varUpdateHandler');
+        this.unlisten(window, 'variables-list-changed', '_varListChangedHandler');
       },
 
-      _computeHideRemoved: function(currentEnvironment) {
-        if (!currentEnvironment || currentEnvironment === 'default') {
-          return true;
-        }
-        return false;
+      // Computes `hasVariables` property.
+      _computeHasVariables: function(record) {
+        return !!(record && record.base && record.base.length);
       },
-      // Add new, empty variable.
-      _addVariable: function() {
-        this.push('variables', {
-          environment: this.currentEnvironment,
-          enabled: false
+      // computes `allowRemove` property.
+      _computeAllowRemove: function(environment) {
+        return !!(environment && environment !== 'default');
+      },
+      // Handler for the `environment-deleted` event.
+      _envDeletedHandler: function(e) {
+        if (e.cancelable || !this.environments) {
+          return;
+        }
+        var id = e.detail.value;
+        var index = this.environments.findIndex(function(item) {
+          return item._id === id;
         });
-        this.fire('send-analytics', {
-          type: 'event',
-          category: 'Variables editor',
-          action: 'Add variable'
+        if (!~index) {
+          return;
+        }
+        this.splice('environments', index, 1);
+        this.$.envRepeater.render();
+      },
+      // Handler for the `environment-updated` event.
+      _envUpdatedHandler: function(e) {
+        if (e.cancelable) {
+          return;
+        }
+        var env = e.detail.value;
+        if (!this.environments) {
+          this.set('environments', [env]);
+          this._checkUpdateEnvironment(env);
+          this.$.envRepeater.render();
+          return;
+        }
+        var index = this.environments.findIndex(function(item) {
+          return item._id === env._id;
+        });
+        if (index === -1) {
+          this.push('environments', env);
+        } else {
+          this.set(['environments', index], env);
+        }
+        this.$.envRepeater.render();
+        this._checkUpdateEnvironment(env);
+      },
+
+      _checkUpdateEnvironment: function(updated) {
+        if (!this.__lastCreatedEnvironment) {
+          return;
+        }
+        if (updated && updated.name === this.__lastCreatedEnvironment) {
+          this.__lastCreatedEnvironment = undefined;
+          this.set('environment', updated.name);
+        }
+      },
+
+      // Handler for the `environments-list-changed` event.
+      _envListUpdatedHandler: function(e) {
+        if (e.cancelable) {
+          return;
+        }
+        this.set('environments', e.detail.value);
+        this.$.envRepeater.render();
+      },
+      // Handler for the `selected-environment-changed` event.
+      _envChangedHandler: function(e) {
+        if (e.cancelable) {
+          return;
+        }
+        this.__cancelEnvChange = true;
+        this.set('environment', e.detail.value);
+        this.__cancelEnvChange = false;
+      },
+      // Handler for the `variable-deleted` event.
+      _varDeletedHandler: function(e) {
+        if (e.cancelable || !this.variables) {
+          return;
+        }
+        var id = e.detail.value;
+        var index = this.variables.findIndex(function(item) {
+          return item._id === id;
+        });
+        if (!~index) {
+          return;
+        }
+        this.splice('variables', index, 1);
+        this.$.repeater.render();
+      },
+      // Handler for the `variable-updated` event.
+      _varUpdateHandler: function(e) {
+        if (e.cancelable) {
+          return;
+        }
+        var env = e.detail.value;
+        if (!this.variables) {
+          this.set('variables', [env]);
+          this.$.repeater.render();
+          return;
+        }
+        var index = this.variables.findIndex(function(item) {
+          return item._id === env._id;
+        });
+        if (index === -1) {
+          // Here's a trick. When adding new variable it is not saved yet
+          // and we should check for a var with the same name.
+          index = this.variables.findIndex(function(item) {
+            return (!item._id && item.variable === env.variable);
+          });
+          if (index === -1) {
+            this.push('variables', env);
+          }
+        }
+        if (~index) {
+          this.set(['variables', index], env);
+        }
+        this.$.repeater.render();
+      },
+      // Handler for the `variables-list-changed` event.
+      _varListChangedHandler: function(e) {
+        if (e.cancelable) {
+          return;
+        }
+        this.set('variables', e.detail.value);
+        this.$.repeater.render();
+      },
+
+      _environmentChanged: function(environment) {
+        if (this.__cancelEnvChange) {
+          // the change has been caused by the external source
+          return;
+        }
+        if (environment === null) {
+          this.set('environment', undefined);
+          return;
+        }
+        if (environment === undefined) {
+          return;
+        }
+        this.fire('selected-environment-changed', {
+          value: environment
         });
       },
-      // Handler for en event sent by a child element to selete saved environment.
-      _onVariableDeleted: function(e) {
-        var id = e.detail.id;
-        var index = this.variables.findIndex(function(i) { return i._id === id; });
-        if (index !== -1) {
-          this.splice('variables', index, 1);
-        }
-        this.fire('send-analytics', {
-          type: 'event',
-          category: 'Variables editor',
-          action: 'Delete variable'
+      /**
+       * Fires `environment-list` event to get a list of environments.
+       */
+      _refreshEnvironments: function() {
+        var event = this.fire('environment-list', {}, {
+          cancelable: true
         });
+        if (event.defaultPrevented) {
+          this.set('environments', event.detail.value);
+        }
+      },
+      /**
+       * Requests information about currently selected environment.
+       */
+      _requestCurrentEnvironment: function() {
+        var event = this.fire('environment-current', {}, {
+          cancelable: true
+        });
+        if (event.defaultPrevented) {
+          this.set('environment', event.detail.value);
+        }
       },
       // Opens environment editor.
       addEnvironment: function() {
         this.envEditorOpened = true;
       },
 
-      cancelAddEnvironment: function() {
+      _cancelAddEnvironment: function() {
         this.envEditorOpened = false;
       },
-      // Saves new environment.
-      addEnvSave: function() {
+      // Handler for the save action for add environment form.
+      _addEnvironment: function() {
         var name = this.$.editorEnvName.value;
         if (!name) {
           this.$.editorEnvName.validate();
@@ -338,141 +513,134 @@ Custom property | Description | Default
         }
         var lowerName = name.toLowerCase();
         if (lowerName === 'default') {
-          this.$.infoToast.text = 'This name is reserved';
-          this.$.infoToast.opened = true;
+          this._toast('This name is reserved. Please, use different name');
           return;
         }
         var index = this.environments.findIndex(function(i) {
           return i.name.toLowerCase() === lowerName;
         });
-        if (index !== -1) {
-          this.$.infoToast.text = 'Environment already exists';
-          this.$.infoToast.opened = true;
+        if (!!~index) {
+          this._toast('Environment already exists. Please, use different name');
           return;
         }
-
         var obj = {
           name: name,
           created: Date.now()
         };
-        var e = this.fire('variables-env-model-insert', {
-          doc: obj
+        var event = this.fire('environment-updated', {
+          value: obj
+        }, {
+          cancelable: true
         });
-        if (event.detail.error || !e.detail.result) {
-          this.$.noModel.opened = true;
+        if (!event.defaultPrevented) {
+          this._toast('Variables manager not found. Report a bug.');
+          this.fire('send-analytics', {
+            type: 'exception',
+            description: 'Add environment - no manager',
+            fatal: false
+          });
+          throw new Error('Variables manager not found.');
+        }
+        if (event.detail.error) {
+          this._toast(event.detail.error.message);
+          this.fire('send-analytics', {
+            type: 'exception',
+            description: 'Add environment-' + event.detail.error.message,
+            fatal: false
+          });
           return;
         }
-        var context = this;
-        e.detail.result.then(function(doc) {
-          context.$.editor.opened = false;
-          context.push('environments', doc);
-          context.set('currentEnvironment', name);
-          context.set('variables', []);
-          context._addVariable();
-        })
-        .catch(function(e) {
-          context.$.errorToast.text = 'Error save data: ' + e.message;
-          context.$.errorToast.opened = true;
-        });
+        this._cancelAddEnvironment();
+        this.__lastCreatedEnvironment = name;
         this.fire('send-analytics', {
           type: 'event',
           category: 'Variables editor',
           action: 'Add environment'
         });
       },
-      // Requests the data store for list of environments.
-      _refreshEnvironments: function() {
-        var event = this.fire('variables-env-model-query', {});
-        if (event.detail.error || !event.detail.result) {
-          this.$.noModel.opened = true;
-          return;
-        }
-        var context = this;
-        event.detail.result.then(function(docs) {
-          context.set('environments', docs);
-        })
-        .catch(function(e) {
-          context.$.errorToast.text = 'Error save data: ' + e.message;
-          context.$.errorToast.opened = true;
-        });
+      // Show toast with the message
+      _toast: function(message) {
+        this.$.infoToast.text = message;
+        this.$.infoToast.opened = true;
       },
-      // handler for env value change
-      _envChanged: function(currentEnvironment) {
-        this.set('variables', []);
-
-        this.fire('variables-environment-changed', {
-          env: currentEnvironment
-        });
-
-        this._queryEnvVariables();
-
-        this.fire('send-analytics', {
-          type: 'event',
-          category: 'Variables editor',
-          action: 'Select environment'
-        });
-      },
-      // When env change this will query variables automatically
-      _queryEnvVariables: function() {
-        var event = this.fire('variables-model-query', {
-          environment: this.currentEnvironment
-        });
-        if (event.detail.error || !event.detail.result) {
-          this.$.noModel.opened = true;
+      // Handler for the delete button.
+      _deleteEnvironment: function() {
+        if (this.environment === 'default') {
           return;
         }
-        var context = this;
-        event.detail.result.then(function(docs) {
-          context.set('variables', docs);
-        })
-        .catch(function(e) {
-          context.$.errorToast.text = 'Error reading data: ' + e.message;
-          context.$.errorToast.opened = true;
-        });
-      },
-      // Removes the environment
-      removeEnvironment: function() {
-        if (this.currentEnvironment === 'default') {
+        if (!this.environments) {
+          this._toast('The list of environments is empty.');
           return;
         }
-        var old = this.currentEnvironment;
-        this.set('currentEnvironment', 'default');
+        var old = this.environment;
+        var oldLowerCase = old.toLowerCase();
+        var item = this.environments.find(function(i) {
+          return i.name.toLowerCase() === oldLowerCase;
+        });
+        if (!item) {
+          this._toast('The environment is not in the list.');
+          return;
+        }
+        var event = this.fire('environment-deleted', {
+          value: item._id
+        }, {
+          cancelable: true
+        });
 
-        var index = this.environments.findIndex(function(i) { return i.name === old; });
-        if (index === -1) {
-          this.$.errorToast.text = 'Something is wrong. Can\'t find item.';
-          this.$.errorToast.opened = true;
+        if (!event.defaultPrevented) {
+          this._toast('Variables manager not found. Report a bug.');
+          this.fire('send-analytics', {
+            type: 'exception',
+            description: 'Remove environment - no manager',
+            fatal: false
+          });
+          throw new Error('Variables manager not found.');
+        }
+        if (event.detail.error) {
+          this._toast(event.detail.error.message);
+          this.fire('send-analytics', {
+            type: 'exception',
+            description: 'Remove environment-' + event.detail.error.message,
+            fatal: false
+          });
           return;
         }
-        var item = this.environments[index];
-        var event = this.fire('variables-env-model-delete', {
-          doc: item
-        });
-        if (event.detail.error || !event.detail.result) {
-          this.$.noModel.opened = true;
-          return;
-        }
-        var context = this;
-        event.result.then(function() {
-          context.splice('environments', index, 1);
-        })
-        .catch(function(e) {
-          context.$.errorToast.text = 'Error deleting data: ' + e.message;
-          context.$.errorToast.opened = true;
-        });
+        this.set('environment', 'default');
         this.fire('send-analytics', {
           type: 'event',
           category: 'Variables editor',
           action: 'Delete environment'
         });
       },
+      // Add new, empty variable.
+      _addVariable: function() {
+        var obj = {
+          environment: this.environment,
+          enabled: false
+        };
+        if (!this.variables) {
+          this.set('variables', [obj]);
+        } else {
+          this.push('variables', obj);
+        }
+        this.fire('send-analytics', {
+          type: 'event',
+          category: 'Variables editor',
+          action: 'Add variable'
+        });
+      },
+
       // Removed unsaved variable
-      _removeVeriableFromUI: function(e) {
-        var index = this.$.repeater.indexForElement(e.target);
+      _removeEmptyVariable: function(e) {
+        var index = e.model.get('index');
         if (index === -1) {
           return;
         }
         this.splice('variables', index, 1);
+      },
+
+      _computeAddButtonHidden: function(envEditorOpened, hasVariables) {
+        return envEditorOpened || !hasVariables;
       }
     });
   })();
