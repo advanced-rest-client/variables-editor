@@ -1,5 +1,4 @@
 language: node_js
-sudo: required
 dist: trusty
 node_js: stable
 before_script:
@@ -10,10 +9,6 @@ addons:
 script:
 - npm run lint
 - node_modules/.bin/polymer test --plugin sauce --job-name "variables-editor:${TRAVIS_BRANCH}" --build-number=${TRAVIS_BUILD_NUMBER}
-cache:
-  directories:
-  - bower_components
-  - node_modules
 branches:
   only:
     - stage

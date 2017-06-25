@@ -20,8 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-  <link rel="import" href="../../arc-models/variables-env-model.html">
-  <link rel="import" href="../../arc-models/variables-model.html">
+  <link rel="import" href="../../variables-manager/variables-manager.html">
+  <link rel="import" href="../../variables-evaluator/variables-evaluator.html">
   <link rel="import" href="../variables-editor.html">
 
   <style is="custom-style" include="demo-pages-shared-styles">
@@ -33,14 +33,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 </head>
 <body unresolved>
-
-
   <div class="vertical-section-container centered">
     <h3>The `variables-editor`</h3>
     <demo-snippet>
       <template>
-        <variables-model></variables-model>
-        <variables-env-model></variables-env-model>
+        <variables-manager></variables-manager>
+        <variables-evaluator></variables-evaluator>
         <variables-editor></variables-editor>
       </template>
     </demo-snippet>
