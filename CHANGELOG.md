@@ -1,3 +1,13 @@
+<a name="0.1.2"></a>
+## [0.1.2](https://github.com/advanced-rest-client/variables-editor/compare/0.1.1...v0.1.2) (2017-07-12)
+
+
+### Fix
+
+* Removed link to not existing `shared-styles`. ([9eb7f679ff3cf977593a0487df5aab42baf74f12](https://github.com/advanced-rest-client/variables-editor/commit/9eb7f679ff3cf977593a0487df5aab42baf74f12))
+
+
+
 <a name="0.1.1"></a>
 ## 0.1.1 (2017-06-25)
 
