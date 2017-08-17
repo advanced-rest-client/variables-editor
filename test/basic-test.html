@@ -45,15 +45,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         editor = fixture('basic');
       });
 
-      test('Should display environments', function(done) {
-        editor.environments = randomEnvs;
-        flush(function() {
-          var listItems = Polymer.dom(editor.root).querySelectorAll('paper-item');
-          assert.equal(randomEnvs.length, listItems.length - 1);
-          done();
-        });
-      });
-
       test('Should display docs', function(done) {
         editor.environments = randomEnvs;
         flush(function() {
@@ -111,7 +102,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             assert.isTrue(spy.called);
             done();
           }, 400);
-
         });
       });
 
