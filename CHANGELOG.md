@@ -1,3 +1,13 @@
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/advanced-rest-client/variables-editor/compare/0.1.3...0.1.4) (2017-08-17)
+
+
+### Update
+
+* Replaced local environment selector with external package. ([a34df9153ebbd7cfa4c22a1a8043806170d17163](https://github.com/advanced-rest-client/variables-editor/commit/a34df9153ebbd7cfa4c22a1a8043806170d17163))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/advanced-rest-client/variables-editor/compare/0.1.2...v0.1.3) (2017-07-12)
 
