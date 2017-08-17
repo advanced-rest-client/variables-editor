@@ -25,6 +25,7 @@ the License.
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
+<link rel="import" href="../environment-selector/environment-selector.html">
 <link rel="import" href="variable-item.html">
 <!--
 # `<variables-editor>`
@@ -191,30 +192,20 @@ Custom property | Description | Default
     </style>
     <section>
       <div class="env-selector">
-        <paper-dropdown-menu label="Environment">
-          <paper-listbox class="dropdown-content" selected="{{environment}}" attr-for-selected="value">
-            <paper-item value="default">Default</paper-item>
-            <template is="dom-repeat" items="[[environments]]" id="envRepeater">
-              <paper-item value$="[[item.name]]">[[item.name]]</paper-item>
-            </template>
-          </paper-listbox>
-        </paper-dropdown-menu>
+        <environment-selector id="envSelector" selected="{{environment}}"></environment-selector>
         <paper-icon-button id="addEnvBtn" on-tap="addEnvironment" class="add-env" icon="arc:add-circle-outline"></paper-icon-button>
         <paper-tooltip for="addEnvBtn" animation-delay="200">Add new environment</paper-tooltip>
         <template is="dom-if" if="[[allowRemove]]">
           <paper-icon-button id="delEnvBtn" on-tap="_deleteEnvironment" class="remove-button" icon="arc:remove-circle-outline"></paper-icon-button>
           <paper-tooltip for="delEnvBtn" animation-delay="200">Remove selected environment and variables</paper-tooltip>
         </template>
-
         <div class="flex"></div>
-
         <div class="help" hidden$="[[!hasVariables]]">
           <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link">
             <paper-icon-button class="info-button" raised icon="arc:help-outline"></paper-icon-button>
             <paper-tooltip animation-delay="200" fit-to-visible-bounds>Learn more about variables</paper-tooltip>
           </a>
         </div>
-
       </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
@@ -277,10 +268,6 @@ Custom property | Description | Default
          */
         variables: Array,
         /**
-         * List of user defined environments.
-         */
-        environments: Array,
-        /**
          * Computed value, true is variables are available for current
          * environment.
          */
@@ -290,7 +277,7 @@ Custom property | Description | Default
           computed: '_computeHasVariables(variables.*)'
         },
         /**
-         * Computed value, set to tru if the environment can be removed.
+         * Computed value, set to `true` if the environment can be removed.
          * Only `default` environment can't be deleted
          */
         allowRemove: {
@@ -304,17 +291,8 @@ Custom property | Description | Default
         }
       },
 
-      observers: [
-        '_environmentChanged(environment)'
-      ],
-
       attached: function() {
-        this._requestCurrentEnvironment();
-        this._refreshEnvironments();
-
-        this.listen(window, 'environment-deleted', '_envDeletedHandler');
         this.listen(window, 'environment-updated', '_envUpdatedHandler');
-        this.listen(window, 'environments-list-changed', '_envListUpdatedHandler');
         this.listen(window, 'selected-environment-changed', '_envChangedHandler');
         this.listen(window, 'variable-deleted', '_varDeletedHandler');
         this.listen(window, 'variable-updated', '_varUpdateHandler');
@@ -322,9 +300,7 @@ Custom property | Description | Default
       },
 
       detached: function() {
-        this.unlisten(window, 'environment-deleted', '_envDeletedHandler');
         this.unlisten(window, 'environment-updated', '_envUpdatedHandler');
-        this.unlisten(window, 'environments-list-changed', '_envListUpdatedHandler');
         this.unlisten(window, 'selected-environment-changed', '_envChangedHandler');
         this.unlisten(window, 'variable-deleted', '_varDeletedHandler');
         this.unlisten(window, 'variable-updated', '_varUpdateHandler');
@@ -339,42 +315,13 @@ Custom property | Description | Default
       _computeAllowRemove: function(environment) {
         return !!(environment && environment !== 'default');
       },
-      // Handler for the `environment-deleted` event.
-      _envDeletedHandler: function(e) {
-        if (e.cancelable || !this.environments) {
-          return;
-        }
-        var id = e.detail.value;
-        var index = this.environments.findIndex(function(item) {
-          return item._id === id;
-        });
-        if (!~index) {
-          return;
-        }
-        this.splice('environments', index, 1);
-        this.$.envRepeater.render();
-      },
+
       // Handler for the `environment-updated` event.
       _envUpdatedHandler: function(e) {
         if (e.cancelable) {
           return;
         }
         var env = e.detail.value;
-        if (!this.environments) {
-          this.set('environments', [env]);
-          this._checkUpdateEnvironment(env);
-          this.$.envRepeater.render();
-          return;
-        }
-        var index = this.environments.findIndex(function(item) {
-          return item._id === env._id;
-        });
-        if (index === -1) {
-          this.push('environments', env);
-        } else {
-          this.set(['environments', index], env);
-        }
-        this.$.envRepeater.render();
         this._checkUpdateEnvironment(env);
       },
 
@@ -386,24 +333,6 @@ Custom property | Description | Default
           this.__lastCreatedEnvironment = undefined;
           this.set('environment', updated.name);
         }
-      },
-
-      // Handler for the `environments-list-changed` event.
-      _envListUpdatedHandler: function(e) {
-        if (e.cancelable) {
-          return;
-        }
-        this.set('environments', e.detail.value);
-        this.$.envRepeater.render();
-      },
-      // Handler for the `selected-environment-changed` event.
-      _envChangedHandler: function(e) {
-        if (e.cancelable) {
-          return;
-        }
-        this.__cancelEnvChange = true;
-        this.set('environment', e.detail.value);
-        this.__cancelEnvChange = false;
       },
       // Handler for the `variable-deleted` event.
       _varDeletedHandler: function(e) {
@@ -457,45 +386,6 @@ Custom property | Description | Default
         this.set('variables', e.detail.value);
         this.$.repeater.render();
       },
-
-      _environmentChanged: function(environment) {
-        if (this.__cancelEnvChange) {
-          // the change has been caused by the external source
-          return;
-        }
-        if (environment === null) {
-          this.set('environment', undefined);
-          return;
-        }
-        if (environment === undefined) {
-          return;
-        }
-        this.fire('selected-environment-changed', {
-          value: environment
-        });
-      },
-      /**
-       * Fires `environment-list` event to get a list of environments.
-       */
-      _refreshEnvironments: function() {
-        var event = this.fire('environment-list', {}, {
-          cancelable: true
-        });
-        if (event.defaultPrevented) {
-          this.set('environments', event.detail.value);
-        }
-      },
-      /**
-       * Requests information about currently selected environment.
-       */
-      _requestCurrentEnvironment: function() {
-        var event = this.fire('environment-current', {}, {
-          cancelable: true
-        });
-        if (event.defaultPrevented) {
-          this.set('environment', event.detail.value);
-        }
-      },
       // Opens environment editor.
       addEnvironment: function() {
         this.envEditorOpened = true;
@@ -516,7 +406,8 @@ Custom property | Description | Default
           this._toast('This name is reserved. Please, use different name');
           return;
         }
-        var index = this.environments.findIndex(function(i) {
+        var envs = this.$.envSelector.environments || [];
+        var index = envs.findIndex(function(i) {
           return i.name.toLowerCase() === lowerName;
         });
         if (!!~index) {
