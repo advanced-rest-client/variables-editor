@@ -293,7 +293,6 @@ Custom property | Description | Default
 
       attached: function() {
         this.listen(window, 'environment-updated', '_envUpdatedHandler');
-        this.listen(window, 'selected-environment-changed', '_envChangedHandler');
         this.listen(window, 'variable-deleted', '_varDeletedHandler');
         this.listen(window, 'variable-updated', '_varUpdateHandler');
         this.listen(window, 'variables-list-changed', '_varListChangedHandler');
@@ -301,7 +300,6 @@ Custom property | Description | Default
 
       detached: function() {
         this.unlisten(window, 'environment-updated', '_envUpdatedHandler');
-        this.unlisten(window, 'selected-environment-changed', '_envChangedHandler');
         this.unlisten(window, 'variable-deleted', '_varDeletedHandler');
         this.unlisten(window, 'variable-updated', '_varUpdateHandler');
         this.unlisten(window, 'variables-list-changed', '_varListChangedHandler');
