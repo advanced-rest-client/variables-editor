@@ -1,3 +1,13 @@
+<a name="0.1.6"></a>
+## [0.1.6](https://github.com/advanced-rest-client/variables-editor/compare/0.1.5...0.1.6) (2017-08-20)
+
+
+### Fix
+
+* Removing unused listener causing console warnings. ([cc66a78eeffcf668345b20412b2c98f79fdd9923](https://github.com/advanced-rest-client/variables-editor/commit/cc66a78eeffcf668345b20412b2c98f79fdd9923))
+
+
+
 <a name="0.1.5"></a>
 ## [0.1.5](https://github.com/advanced-rest-client/variables-editor/compare/0.1.4...0.1.5) (2017-08-17)
 
