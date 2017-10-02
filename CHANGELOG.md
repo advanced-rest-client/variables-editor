@@ -1,3 +1,13 @@
+<a name="0.1.8"></a>
+## [0.1.8](https://github.com/advanced-rest-client/variables-editor/compare/0.1.6...0.1.8) (2017-10-02)
+
+
+### Update
+
+* Updating models version. ([ff6f83f9fc238969a184139a45ab00b65fe44e36](https://github.com/advanced-rest-client/variables-editor/commit/ff6f83f9fc238969a184139a45ab00b65fe44e36))
+
+
+
 <a name="0.1.7"></a>
 ## [0.1.7](https://github.com/advanced-rest-client/variables-editor/compare/0.1.6...0.1.7) (2017-08-20)
 
