@@ -1,3 +1,13 @@
+<a name="0.1.9"></a>
+## [0.1.9](https://github.com/advanced-rest-client/variables-editor/compare/0.1.8...0.1.9) (2017-10-02)
+
+
+### Fix
+
+* Fixed icon name. ([42cbb66bc417885fca4ae6dc73cd4130505226fd](https://github.com/advanced-rest-client/variables-editor/commit/42cbb66bc417885fca4ae6dc73cd4130505226fd))
+
+
+
 <a name="0.1.8"></a>
 ## [0.1.8](https://github.com/advanced-rest-client/variables-editor/compare/0.1.6...0.1.8) (2017-10-02)
 
