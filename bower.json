@@ -2,7 +2,7 @@
   "name": "variables-editor",
   "description": "A variables editor element is an UI element to display existing variables and forms to edit them",
   "license": "Apache-2.0 OR CC-BY-4.0",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "authors": [
     "The Advanced REST client authors <arc@mulesoft.com>"
   ],

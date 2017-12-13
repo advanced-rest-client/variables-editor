@@ -1,3 +1,13 @@
+<a name="0.1.11"></a>
+## [0.1.11](https://github.com/advanced-rest-client/variables-editor/compare/0.1.10...0.1.11) (2017-12-13)
+
+
+### Fix
+
+* Fixed list re-render when deleting an object ([9f66e6995b1ccb680ed3a5b991531e322fe4dbae](https://github.com/advanced-rest-client/variables-editor/commit/9f66e6995b1ccb680ed3a5b991531e322fe4dbae))
+
+
+
 <a name="0.1.10"></a>
 ## [0.1.10](https://github.com/advanced-rest-client/variables-editor/compare/0.1.9...0.1.10) (2017-10-02)
 
