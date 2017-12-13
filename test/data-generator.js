@@ -13,7 +13,7 @@ window.dataGenerator = {
   },
 
   variables: function() {
-    var no = chance.integer({min: 1, max: 5});
+    var no = 10;
     var result = [];
     for (var i = 0; i < no; i++) {
       result[result.length] = {
