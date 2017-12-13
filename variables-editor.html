@@ -381,7 +381,14 @@ Custom property | Description | Default
         if (e.cancelable) {
           return;
         }
-        this.set('variables', e.detail.value);
+        var eventVars = e.detail.value;
+        var vars;
+        if (eventVars && eventVars.length) {
+          vars = eventVars.map(function(item) {
+            return Object.assign({}, item);
+          });
+        }
+        this.set('variables', vars);
         this.$.repeater.render();
       },
       // Opens environment editor.

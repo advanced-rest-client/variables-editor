@@ -29,8 +29,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </template>
     </test-fixture>
 
+    <test-fixture id="objectCopy">
+      <template>
+        <variables-editor></variables-editor>
+        <variables-editor></variables-editor>
+      </template>
+    </test-fixture>
+
     <script>
-    // jshint ignore: start
+    /* global dataGenerator, flush, fixture, assert, MockInteractions, sinon */
     suite('basic', function() {
       var randomEnvs;
       var randomVars;
@@ -69,7 +76,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var button = Polymer.dom(editor.root).querySelector('.add-env');
         MockInteractions.tap(button);
         flush(function() {
-          var collapse = Polymer.dom(editor.root).querySelectorAll('#editor');
           assert.equal(editor.envEditorOpened, true);
           done();
         });
@@ -104,7 +110,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           }, 400);
         });
       });
+    });
 
+    suite('List copy', function() {
+      var randomVars;
+      var editor1;
+      var editor2;
+
+      suiteSetup(function() {
+        randomVars = dataGenerator.variables();
+      });
+
+      function setupVars() {
+        var e = new CustomEvent('variables-list-changed', {
+          bubbles: true,
+          detail: {
+            value: randomVars
+          }
+        });
+        document.body.dispatchEvent(e);
+      }
+
+      setup(function(done) {
+        var fix = fixture('objectCopy');
+        editor1 = fix[0];
+        editor2 = fix[1];
+        setupVars();
+        flush(function() {
+          done();
+        });
+      });
+
+      test('Editors has variables rendered', function() {
+        var listItems1 = Polymer.dom(editor1.root).querySelectorAll('variable-item');
+        assert.lengthOf(listItems1, randomVars.length);
+        var listItems2 = Polymer.dom(editor2.root).querySelectorAll('variable-item');
+        assert.lengthOf(listItems2, randomVars.length);
+      });
+
+      test('Deletes element on both editors', function() {
+        var e = new CustomEvent('variable-deleted', {
+          bubbles: true,
+          detail: {
+            value: randomVars[4]._id
+          }
+        });
+        document.body.dispatchEvent(e);
+        var newLength = randomVars.length - 1;
+        var listItems1 = Polymer.dom(editor1.root).querySelectorAll('variable-item');
+        assert.lengthOf(listItems1, newLength);
+        var listItems2 = Polymer.dom(editor2.root).querySelectorAll('variable-item');
+        assert.lengthOf(listItems2, newLength);
+      });
     });
     </script>
 
