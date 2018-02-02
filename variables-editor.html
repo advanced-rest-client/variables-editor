@@ -305,6 +305,37 @@ Custom property | Description | Default
         this.unlisten(window, 'variables-list-changed', '_varListChangedHandler');
       },
 
+      ready: function() {
+        if (!this.variables) {
+          this.refresh();
+        }
+      },
+      /**
+       * Refreshes the list of variables on demand.
+       *
+       * @return {[type]} [description]
+       */
+      refresh: function() {
+        var ev = this.fire('variable-list', {}, {
+          cancelable: true
+        });
+        if (!ev.defaultPrevented) {
+          return;
+        }
+        var variables = ev.detail.value;
+        if (!variables) {
+          return;
+        }
+        this.set('variables', variables);
+        ev = this.fire('environment-current', {}, {
+          cancelable: true
+        });
+        if (!ev.defaultPrevented) {
+          return;
+        }
+        this.set('environment', ev.detail.value);
+      },
+
       // Computes `hasVariables` property.
       _computeHasVariables: function(record) {
         return !!(record && record.base && record.base.length);
