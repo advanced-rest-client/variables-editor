@@ -307,7 +307,9 @@ Custom property | Description | Default
 
       ready: function() {
         if (!this.variables) {
-          this.refresh();
+          Polymer.RenderStatus.afterNextRender(this, function() {
+            this.refresh();
+          });
         }
       },
       /**
