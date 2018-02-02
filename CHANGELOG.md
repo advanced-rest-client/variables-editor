@@ -1,3 +1,13 @@
+<a name="0.1.15"></a>
+## [0.1.15](https://github.com/advanced-rest-client/variables-editor/compare/0.1.14...0.1.15) (2018-02-02)
+
+
+### Fix
+
+* Fixed timing of firing update list event. ([12b7c8fcf3e3d271bbd376e80169f295a2162249](https://github.com/advanced-rest-client/variables-editor/commit/12b7c8fcf3e3d271bbd376e80169f295a2162249))
+
+
+
 <a name="0.1.14"></a>
 ## [0.1.14](https://github.com/advanced-rest-client/variables-editor/compare/0.1.13...0.1.14) (2018-02-02)
 
