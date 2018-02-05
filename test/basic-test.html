@@ -112,6 +112,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
     });
 
+    suite('System variables', function() {
+      var randomEnvs;
+      var randomVars;
+      var editor;
+      var callback = function(e) {
+        var other = dataGenerator.variables(5);
+        other = other.map(function(item) {
+          item.sysVar = true;
+          return item;
+        });
+        e.preventDefault();
+        e.detail.value = randomVars.concat(other);
+      };
+
+      suiteSetup(function() {
+        randomEnvs = dataGenerator.environments();
+        randomVars = dataGenerator.variables();
+        window.addEventListener('variable-list', callback);
+      });
+
+      suiteTeardown(function() {
+        window.removeEventListener('variable-list', callback);
+      });
+
+      setup(function() {
+        editor = fixture('basic');
+      });
+
+      test('Ignores system variables', function() {
+        editor.refresh();
+        assert.lengthOf(editor.variables, 10);
+      });
+
+      test('_processVariables() removes system variables', function() {
+        var other = dataGenerator.variables(5);
+        other = other.map(function(item) {
+          item.sysVar = true;
+          return item;
+        });
+        var vars = randomVars.concat(other);
+        var result = editor._processVariables(vars);
+        assert.lengthOf(result, 10);
+      });
+    });
+
     suite('List copy', function() {
       var randomVars;
       var editor1;

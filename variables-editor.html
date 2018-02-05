@@ -328,7 +328,7 @@ Custom property | Description | Default
         if (!variables) {
           return;
         }
-        this.set('variables', variables);
+        this.set('variables', this._processVariables(variables));
         ev = this.fire('environment-current', {}, {
           cancelable: true
         });
@@ -336,6 +336,22 @@ Custom property | Description | Default
           return;
         }
         this.set('environment', ev.detail.value);
+      },
+      /**
+       * Processes variables list returned by the variables manager.
+       * Filters out variables that are set in platform environment.
+       *
+       * @param {Array} variables List of variables received from the manager.
+       * @return {Array} Updated list of variables.
+       */
+      _processVariables: function(variables) {
+        if (!variables) {
+          return variables;
+        }
+        variables = variables.filter(function(item) {
+          return !item.sysVar;
+        });
+        return variables;
       },
 
       // Computes `hasVariables` property.
@@ -386,6 +402,9 @@ Custom property | Description | Default
           return;
         }
         var env = e.detail.value;
+        if (env.sysVar) {
+          return;
+        }
         if (!this.variables) {
           this.set('variables', [env]);
           this.$.repeater.render();
@@ -421,7 +440,7 @@ Custom property | Description | Default
             return Object.assign({}, item);
           });
         }
-        this.set('variables', vars);
+        this.set('variables', this._processVariables(vars));
         this.$.repeater.render();
       },
       // Opens environment editor.
