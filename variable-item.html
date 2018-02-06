@@ -197,7 +197,7 @@ Custom property | Description | Default
             bubbles: false
           });
         }
-        var event = this.fire('variable-deleted', {
+        this.fire('variable-deleted', {
           value: this.item._id
         }, {
           cancelable: true
