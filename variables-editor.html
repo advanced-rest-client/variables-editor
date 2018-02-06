@@ -390,7 +390,7 @@ Custom property | Description | Default
         var index = this.variables.findIndex(function(item) {
           return item._id === id;
         });
-        if (!~index) {
+        if (index === -1) {
           return;
         }
         this.splice('variables', index, 1);
