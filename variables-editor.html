@@ -26,6 +26,7 @@ the License.
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <link rel="import" href="../environment-selector/environment-selector.html">
+<link rel="import" href="../openable-panel-behavior/openable-panel-behavior.html">
 <link rel="import" href="variable-item.html">
 <!--
 # `<variables-editor>`
@@ -258,6 +259,8 @@ Custom property | Description | Default
     Polymer({
       is: 'variables-editor',
 
+      behaviors: [ArcBehaviors.OpenablePanelBehavior],
+
       properties: {
         /**
          * Currently selected environment.
@@ -291,6 +294,10 @@ Custom property | Description | Default
         }
       },
 
+      observers: [
+        '_ensureVariables(_isOpened)'
+      ],
+
       attached: function() {
         this.listen(window, 'environment-updated', '_envUpdatedHandler');
         this.listen(window, 'variable-deleted', '_varDeletedHandler');
@@ -305,13 +312,14 @@ Custom property | Description | Default
         this.unlisten(window, 'variables-list-changed', '_varListChangedHandler');
       },
 
-      ready: function() {
-        if (!this.variables) {
+      _ensureVariables: function(_isOpened) {
+        if (_isOpened && !this.variables) {
           Polymer.RenderStatus.afterNextRender(this, function() {
             this.refresh();
           });
         }
       },
+
       /**
        * Refreshes the list of variables on demand.
        *
@@ -401,6 +409,9 @@ Custom property | Description | Default
         if (e.cancelable) {
           return;
         }
+        if (!this._isOpened && !this.variables) {
+          return;
+        }
         var env = e.detail.value;
         if (env.sysVar) {
           return;
@@ -431,6 +442,9 @@ Custom property | Description | Default
       // Handler for the `variables-list-changed` event.
       _varListChangedHandler: function(e) {
         if (e.cancelable) {
+          return;
+        }
+        if (!this._isOpened && !this.variables) {
           return;
         }
         var eventVars = e.detail.value;

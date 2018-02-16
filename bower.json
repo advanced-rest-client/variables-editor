@@ -43,7 +43,8 @@
     "vertical-tabs": "advanced-rest-client/vertical-tabs#^1.0.1",
     "paper-tabs": "PolymerElements/paper-tabs#^1.8.0",
     "iron-pages": "PolymerElements/iron-pages#^1.0.0",
-    "environment-selector": "advanced-rest-client/environment-selector#^0.1.0"
+    "environment-selector": "advanced-rest-client/environment-selector#^0.1.0",
+    "openable-panel-behavior": "advanced-rest-client/openable-panel-behavior#^0.1.2"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
