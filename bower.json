@@ -57,7 +57,7 @@
     "arc-models": "advanced-rest-client/arc-models#^0.1.1",
     "chance": "^1.0.4",
     "variables-manager": "advanced-rest-client/variables-manager#^0.1.0",
-    "variables-evaluator": "advanced-rest-client/variables-evaluator#^0.1.1"
+    "variables-evaluator": "advanced-rest-client/variables-evaluator#^0.2.1"
   },
   "ignore": [
     "**/.*",
