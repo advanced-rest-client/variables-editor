@@ -1,3 +1,13 @@
+<a name="0.1.19"></a>
+## [0.1.19](https://github.com/advanced-rest-client/variables-editor/compare/0.1.18...0.1.19) (2018-02-16)
+
+
+### New
+
+* Added openable-panel-behavior ([8c622c700e5468e57315c9bdd63a47c67a33ac33](https://github.com/advanced-rest-client/variables-editor/commit/8c622c700e5468e57315c9bdd63a47c67a33ac33))
+
+
+
 <a name="0.1.18"></a>
 ## [0.1.18](https://github.com/advanced-rest-client/variables-editor/compare/0.1.17...0.1.18) (2018-02-06)
 
