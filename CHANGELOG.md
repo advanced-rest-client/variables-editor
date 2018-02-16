@@ -1,3 +1,13 @@
+<a name="0.1.21"></a>
+## [0.1.21](https://github.com/advanced-rest-client/variables-editor/compare/0.1.20...0.1.21) (2018-02-16)
+
+
+### Update
+
+* Updated dependency version ([0a3f7002e63a8a0862c767ea3ec373ace97a7a35](https://github.com/advanced-rest-client/variables-editor/commit/0a3f7002e63a8a0862c767ea3ec373ace97a7a35))
+
+
+
 <a name="0.1.20"></a>
 ## [0.1.20](https://github.com/advanced-rest-client/variables-editor/compare/0.1.19...0.1.20) (2018-02-16)
 
