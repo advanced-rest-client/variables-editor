@@ -1,3 +1,9 @@
+<a name="0.1.22"></a>
+## [0.1.22](https://github.com/advanced-rest-client/variables-editor/compare/0.1.21...0.1.22) (2018-02-16)
+
+
+
+
 <a name="0.1.21"></a>
 ## [0.1.21](https://github.com/advanced-rest-client/variables-editor/compare/0.1.20...0.1.21) (2018-02-16)
 
