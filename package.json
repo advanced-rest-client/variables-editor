@@ -4,7 +4,7 @@
   "license": "Apache-2.0 OR CC-BY-4.0",
   "description": "A variables editor element is an UI element to display existing variables and forms to edit them",
   "devDependencies": {
-    "polymer-cli": "^1.2.0"
+    "polymer-cli": "^1.7.7"
   },
   "engines": {
     "node": ">=0.10.0"
