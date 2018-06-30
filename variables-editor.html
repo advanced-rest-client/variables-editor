@@ -530,13 +530,14 @@ Custom property | Description | Default
         if (this.environment === 'default') {
           return;
         }
-        if (!this.environments) {
+        var envs = this.$.envSelector.environments || [];
+        if (!envs) {
           this._toast('The list of environments is empty.');
           return;
         }
         var old = this.environment;
         var oldLowerCase = old.toLowerCase();
-        var item = this.environments.find(function(i) {
+        var item = envs.find(function(i) {
           return i.name.toLowerCase() === oldLowerCase;
         });
         if (!item) {

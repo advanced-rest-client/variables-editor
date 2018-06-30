@@ -38,6 +38,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script>
     /* global dataGenerator, flush, fixture, assert, MockInteractions, sinon */
+    function setupEnvironmetns(envs) {
+      var e = new CustomEvent('environments-list-changed', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          value: envs
+        }
+      });
+      document.body.dispatchEvent(e);
+    }
     suite('basic', function() {
       var randomEnvs;
       var randomVars;
@@ -206,6 +216,66 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.lengthOf(listItems1, newLength);
         var listItems2 = Polymer.dom(editor2.root).querySelectorAll('variable-item');
         assert.lengthOf(listItems2, newLength);
+      });
+    });
+
+    suite('Delete environment', function() {
+      var randomEnvs;
+      var randomVars;
+      var editor;
+
+      suiteSetup(function() {
+        randomEnvs = dataGenerator.environments();
+        randomVars = dataGenerator.variables();
+      });
+
+      setup(function() {
+        editor = fixture('basic');
+        setupEnvironmetns(randomEnvs);
+      });
+
+      test('Renders delete icon', function(done) {
+        editor.environments = randomEnvs;
+        editor.variables = randomVars;
+        editor.environment = randomEnvs[0].name;
+        flush(function() {
+          var node = Polymer.dom(editor.root).querySelector('#delEnvBtn');
+          assert.ok(node);
+          done();
+        });
+      });
+
+      test('Dispatches environment-deleted event', function(done) {
+        editor.variables = randomVars;
+        editor.environment = randomEnvs[0].name;
+        flush(function() {
+          var node = Polymer.dom(editor.root).querySelector('#delEnvBtn');
+          node.click();
+        });
+        editor.addEventListener('environment-deleted', function clb(e) {
+          editor.removeEventListener('environment-deleted', clb);
+          assert.isTrue(e.cancelable, 'Event can be canceled');
+          e.preventDefault();
+          done();
+        });
+      });
+
+      test('Sets default environment', function(done) {
+        editor.variables = randomVars;
+        editor.environment = randomEnvs[0].name;
+        flush(function() {
+          var node = Polymer.dom(editor.root).querySelector('#delEnvBtn');
+          node.click();
+        });
+        editor.addEventListener('environment-deleted', function clb(e) {
+          editor.removeEventListener('environment-deleted', clb);
+          assert.isTrue(e.cancelable, 'Event can be canceled');
+          e.preventDefault();
+          setTimeout(function() {
+            assert.equal(editor.environment, 'default');
+            done();
+          }, 1);
+        });
       });
     });
     </script>
