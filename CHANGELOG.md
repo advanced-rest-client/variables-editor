@@ -1,4 +1,14 @@
 <a name="0.1.22"></a>
+## [0.1.22](https://github.com/advanced-rest-client/variables-editor/compare/0.1.21...0.1.22) (2018-06-30)
+
+
+### Fix
+
+* Fixes https://github.com/advanced-rest-client/arc-electron/issues/81 ([4ba4c949e3013194aa063956f0c146883f3b2c7c](https://github.com/advanced-rest-client/variables-editor/commit/4ba4c949e3013194aa063956f0c146883f3b2c7c))
+
+
+
+<a name="0.1.22"></a>
 ## [0.1.22](https://github.com/advanced-rest-client/variables-editor/compare/0.1.21...0.1.22) (2018-02-16)
 
 
