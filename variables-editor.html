@@ -41,33 +41,6 @@ the License.
       color: var(--variables-editor-add-color, var(--primary-color));
     }
 
-    .add-env {
-      transition: var(--button-transition);
-      color: var(--variables-editor-add-environment-color, rgba(0, 0, 0, 0.54));
-    }
-
-    .add-env:hover {
-      color: var(--variables-editor-add-environment-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
-    }
-
-    .info-button {
-      transition: var(--button-transition);
-      color: var(--variables-editor-info-button-color, rgba(0, 0, 0, 0.54));
-    }
-
-    .info-button:hover {
-      color: var(--variables-editor-info-button-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
-    }
-
-    .remove-button {
-      color: var(--variables-editor-remove-env-color, rgba(0, 0, 0, 0.54));
-      transition: var(--button-transition);
-    }
-
-    .remove-button:hover {
-      color: var(--variables-editor-remove-env-color-hover, var(--accent-color, rgba(0, 0, 0, 0.74)));
-    }
-
     .primary-button {
       background-color: var(--variables-editor-primary-button-background-color, var(--accent-color));
       color: var(--variables-editor-primary-button-color, var(--primary-light-color, #fff));
@@ -76,22 +49,19 @@ the License.
 
     .env-selector {
       @apply --layout-horizontal;
+      @apply --layout-end;
       @apply --layout-wrap;
       margin-bottom: 20px;
     }
 
-    .env-selector paper-icon-button {
-      align-self: center;
+    .env-selector paper-button {
+      height: 40px;
+      margin-bottom: 8px;
     }
 
     .app-link {
       text-decoration: none;
       color: inherit;
-    }
-
-    .help {
-      @apply --layout-horizontal;
-      @apply --layout-center;
     }
 
     .doc-frame {
@@ -123,6 +93,11 @@ the License.
       @apply --arc-font-title;
     }
 
+    .tutorial-title-label {
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+
     .tutorial-link {
       margin-top: 12px;
       margin-bottom: 0;
@@ -141,22 +116,20 @@ the License.
     <section>
       <div class="env-selector">
         <environment-selector id="envSelector" selected="{{environment}}"></environment-selector>
-        <paper-icon-button id="addEnvBtn" on-tap="addEnvironment" class="add-env" icon="arc:add-circle-outline" title="Add new environment"></paper-icon-button>
+        <paper-button on-click="addEnvironment" class="add-env" title="Add new environment">Add</paper-button>
         <template is="dom-if" if="[[allowRemove]]">
-          <paper-icon-button id="delEnvBtn" on-tap="_deleteEnvironment" class="remove-button" icon="arc:remove-circle-outline" title="Remove selected environment and variables"></paper-icon-button>
+          <paper-button on-click="_deleteEnvironment" class="remove-env" title="Remove environment and variables">Remove</paper-button>
         </template>
         <div class="flex"></div>
-        <div class="help" hidden$="[[!hasVariables]]">
-          <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link">
-            <paper-icon-button class="info-button" raised icon="arc:help-outline" title="Learn more about variables"></paper-icon-button>
-          </a>
-        </div>
+        <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link" on-click="_openHelp">
+          <paper-button class="info-button">Help</paper-button>
+        </a>
       </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
           <paper-input id="editorEnvName" label="Environment name" error-message="Name is required" required auto-validate></paper-input>
-          <paper-button on-tap="_addEnvironment" class="primary-button">Save environment</paper-button>
-          <paper-button on-tap="_cancelAddEnvironment" class="">Cancel</paper-button>
+          <paper-button on-click="_addEnvironment" class="primary-button">Save environment</paper-button>
+          <paper-button on-click="_cancelAddEnvironment" class="">Cancel</paper-button>
         </div>
       </iron-collapse>
     </section>
@@ -166,19 +139,18 @@ the License.
       </template>
       <template is="dom-if" if="[[!hasVariables]]">
         <div class="doc-frame">
-          <h4 class="tutorial-title"><iron-icon icon="arc:code"></iron-icon> Upgrade request with variables</h4>
-          <p>Create variables and insert them into the request.</p>
-          <p>Usage: Put <code>${variable name}</code> into any request field and the value will be inserted at run time.</p>
-          <paper-button raised class="primary-button" on-tap="_addVariable">add variable</paper-button>
+          <h4 class="tutorial-title"><iron-icon icon="arc:code"></iron-icon><span class="tutorial-title-label">Upgrade request with variables</span></h4>
+          <p>Put <code>${variableName}</code> into any request field and the value will be inserted at run time.</p>
+          <paper-button raised class="primary-button" on-click="_addVariable">add variable</paper-button>
           <p class="tutorial-link">
-            <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="text-link">Learn more about variables.</a>
+            <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="text-link" on-click="_openHelp">Learn more about variables.</a>
             <iron-icon icon="arc:open-in-new"></iron-icon>
           </p>
         </div>
       </template>
     </section>
     <section hidden$="[[_computeAddButtonHidden(envEditorOpened, hasVariables)]]">
-      <paper-button class="add-button add-var" on-tap="_addVariable">add variable</paper-button>
+      <paper-button class="add-button add-var" on-click="_addVariable">add variable</paper-button>
     </section>
     <paper-toast text="" id="infoToast"></paper-toast>
   </template>
@@ -612,6 +584,33 @@ the License.
     _computeAddButtonHidden(envEditorOpened, hasVariables) {
       return envEditorOpened || !hasVariables;
     }
+
+    /**
+     * Opens documentation page for the module.
+     */
+    _openHelp(e) {
+      let url = e.currentTarget.href;
+      const ev = new CustomEvent('open-external-url', {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          url: url
+        }
+      });
+      this.dispatchEvent(ev);
+      if (ev.defaultPrevented) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      window.open(url);
+    }
+
+    /**
+     * When an external URL is requested to open.
+     * @event open-external-url
+     * @param {url}
+     */
   }
   window.customElements.define(VariablesEditor.is, VariablesEditor);
   </script>

@@ -38,8 +38,9 @@ the License.
       @apply --layout-flex;
     }
 
-    .listing {
-      width: 600px;
+    .docs-list,
+    paper-tabs {
+      max-width: 600px;
       @apply --paper-font-body1;
     }
 
@@ -62,42 +63,40 @@ the License.
     }
 
     code {
-      background-color: #FFECB3;
+      background-color: var(--variable-editor-dialog-code-bacground, #FFECB3);
       display: block;
-      padding: 8px 12px;
-      margin: 12px 0;
+      padding: 8px 24px;
+      margin: 12px 24px;
     }
     </style>
     <paper-dialog opened="{{opened}}" on-iron-overlay-closed="_onClosed">
       <h2>Variable editor</h2>
+      <div class="input">
+        <paper-input label="Variable value" value="{{value}}"></paper-input>
+        <paper-icon-button icon="arc:visibility" on-click="_evaluate" title="Evaluate current value"></paper-icon-button>
+      </div>
+      <template is="dom-if" if="[[evaluated]]">
+        <code>[[evaluated]]</code>
+      </template>
+      <paper-tabs selected="{{selectedDoc}}">
+        <paper-tab>String</paper-tab>
+        <paper-tab>Math</paper-tab>
+        <paper-tab>Miscellaneous</paper-tab>
+      </paper-tabs>
       <paper-dialog-scrollable>
-        <div class="input">
-          <paper-input label="Variable value" value="{{value}}"></paper-input>
-          <paper-icon-button icon="arc:visibility" on-tap="_evaluate" title="Evaluate current value"></paper-icon-button>
-        </div>
-        <template is="dom-if" if="[[evaluated]]">
-          <code>[[evaluated]]</code>
-        </template>
-        <div class="listing">
-          <paper-tabs selected="{{selectedDoc}}">
-            <paper-tab>String</paper-tab>
-            <paper-tab>Math</paper-tab>
-            <paper-tab>Miscellaneous</paper-tab>
-          </paper-tabs>
-          <section class="docs-list">
-            <dl>
-              <template is="dom-repeat" items="[[docs]]">
-                <div class="di">
-                  <div class="dc">
-                    <dt>[[item.name]]</dt>
-                    <dd>[[item.doc]]</dd>
-                  </div>
-                  <paper-button raised on-tap="_insertFunction">Use</paper-button>
+        <section class="docs-list">
+          <dl>
+            <template is="dom-repeat" items="[[docs]]">
+              <div class="di">
+                <div class="dc">
+                  <dt>[[item.name]]</dt>
+                  <dd>[[item.doc]]</dd>
                 </div>
-              </template>
-            </dl>
-          </section>
-        </div>
+                <paper-button raised on-click="_insertFunction">Use</paper-button>
+              </div>
+            </template>
+          </dl>
+        </section>
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>

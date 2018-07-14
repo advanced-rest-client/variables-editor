@@ -228,7 +228,7 @@
         editor.variables = randomVars;
         editor.environment = randomEnvs[0].name;
         flush(function() {
-          const node = editor.shadowRoot.querySelector('#delEnvBtn');
+          const node = editor.shadowRoot.querySelector('.remove-env');
           assert.ok(node);
           done();
         });
@@ -238,7 +238,7 @@
         editor.variables = randomVars;
         editor.environment = randomEnvs[0].name;
         flush(function() {
-          const node = editor.shadowRoot.querySelector('#delEnvBtn');
+          const node = editor.shadowRoot.querySelector('.remove-env');
           node.click();
         });
         editor.addEventListener('environment-deleted', function clb(e) {
@@ -253,7 +253,7 @@
         editor.variables = randomVars;
         editor.environment = randomEnvs[0].name;
         flush(function() {
-          const node = editor.shadowRoot.querySelector('#delEnvBtn');
+          const node = editor.shadowRoot.querySelector('.remove-env');
           node.click();
         });
         editor.addEventListener('environment-deleted', function clb(e) {
