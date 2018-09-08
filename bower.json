@@ -40,7 +40,9 @@
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
     "iron-pages": "PolymerElements/iron-pages#^2.0.0",
     "environment-selector": "advanced-rest-client/environment-selector#2.0.0-preview",
-    "paper-button": "PolymerElements/paper-button#^2.0.0"
+    "paper-button": "PolymerElements/paper-button#^2.0.0",
+    "variables-consumer-mixin": "advanced-rest-client/variables-consumer-mixin#2.0.0-preview",
+    "uuid-generator": "advanced-rest-client/environment-selector#^2.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^3.0.1",

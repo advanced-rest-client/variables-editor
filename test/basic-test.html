@@ -27,16 +27,6 @@
 
     <script>
     /* global dataGenerator */
-    function setupEnvironmetns(envs) {
-      const e = new CustomEvent('environments-list-changed', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          value: envs
-        }
-      });
-      document.body.dispatchEvent(e);
-    }
     suite('basic', function() {
       let randomEnvs;
       let randomVars;
@@ -112,36 +102,35 @@
     });
 
     suite('System variables', function() {
-      let randomEnvs;
       let randomVars;
       let editor;
-      const callback = function(e) {
-        let other = dataGenerator.variables(5);
-        other = other.map(function(item) {
-          item.sysVar = true;
-          return item;
-        });
-        e.preventDefault();
-        e.detail.value = randomVars.concat(other);
-      };
 
       suiteSetup(function() {
-        randomEnvs = dataGenerator.environments();
         randomVars = dataGenerator.variables();
-        window.addEventListener('variable-list', callback);
-      });
-
-      suiteTeardown(function() {
-        window.removeEventListener('variable-list', callback);
       });
 
       setup(function() {
         editor = fixture('basic');
       });
 
+      function fireList() {
+        let other = dataGenerator.variables(5);
+        other = other.map(function(item) {
+          item.sysVar = true;
+          return item;
+        });
+        const e = new CustomEvent('variables-list-changed', {
+          bubbles: true,
+          detail: {
+            value: randomVars.concat(other)
+          }
+        });
+        document.body.dispatchEvent(e);
+      }
+
       test('Ignores system variables', function() {
-        editor.refresh();
-        assert.lengthOf(editor.variables, 10);
+        fireList();
+        assert.lengthOf(editor._filtered, 10);
       });
 
       test('_processVariables() removes system variables', function() {
@@ -151,7 +140,9 @@
           return item;
         });
         const vars = randomVars.concat(other);
-        const result = editor._processVariables(vars);
+        const result = editor._processVariables({
+          base: vars
+        });
         assert.lengthOf(result, 10);
       });
     });
@@ -186,25 +177,28 @@
       });
 
       test('Editors has variables rendered', function() {
-        const listItems1 = Polymer.dom(editor1.root).querySelectorAll('variable-item');
+        const listItems1 = editor1.shadowRoot.querySelectorAll('variable-item');
         assert.lengthOf(listItems1, randomVars.length);
-        const listItems2 = Polymer.dom(editor2.root).querySelectorAll('variable-item');
+        const listItems2 = editor2.shadowRoot.querySelectorAll('variable-item');
         assert.lengthOf(listItems2, randomVars.length);
       });
 
-      test('Deletes element on both editors', function() {
+      test('Deletes element on both editors', function(done) {
         const e = new CustomEvent('variable-deleted', {
           bubbles: true,
           detail: {
-            value: randomVars[4]._id
+            id: randomVars[4]._id
           }
         });
         document.body.dispatchEvent(e);
         const newLength = randomVars.length - 1;
-        const listItems1 = Polymer.dom(editor1.root).querySelectorAll('variable-item');
-        assert.lengthOf(listItems1, newLength);
-        const listItems2 = Polymer.dom(editor2.root).querySelectorAll('variable-item');
-        assert.lengthOf(listItems2, newLength);
+        flush(() => {
+          const listItems1 = editor1.shadowRoot.querySelectorAll('variable-item');
+          assert.lengthOf(listItems1, newLength);
+          const listItems2 = editor2.shadowRoot.querySelectorAll('variable-item');
+          assert.lengthOf(listItems2, newLength);
+          done();
+        });
       });
     });
 
@@ -218,9 +212,12 @@
         randomVars = dataGenerator.variables();
       });
 
-      setup(function() {
+      setup(function(done) {
         editor = fixture('basic');
-        setupEnvironmetns(randomEnvs);
+        flush(() => {
+          editor.$.envSelector.environments = randomEnvs;
+          done();
+        });
       });
 
       test('Renders delete icon', function(done) {
@@ -246,25 +243,6 @@
           assert.isTrue(e.cancelable, 'Event can be canceled');
           e.preventDefault();
           done();
-        });
-      });
-
-      test('Sets default environment', function(done) {
-        editor.variables = randomVars;
-        editor.environment = randomEnvs[0].name;
-        flush(function() {
-          const node = editor.shadowRoot.querySelector('.remove-env');
-          node.click();
-        });
-        editor.addEventListener('environment-deleted', function clb(e) {
-          editor.removeEventListener('environment-deleted', clb);
-          assert.isTrue(e.cancelable, 'Event can be canceled');
-          e.preventDefault();
-          e.detail.result = Promise.resolve();
-          setTimeout(function() {
-            assert.equal(editor.environment, 'default');
-            done();
-          }, 1);
         });
       });
     });

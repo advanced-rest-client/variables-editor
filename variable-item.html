@@ -14,12 +14,10 @@ the License.
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../paper-styles/paper-styles.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../paper-input/paper-input-container.html">
-<link rel="import" href="../paper-input/paper-input-error.html">
-<link rel="import" href="../iron-input/iron-input.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../uuid-generator/uuid-generator.html">
+<link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="variable-editor-dialog.html">
 
 <dom-module id="variable-item">
@@ -80,7 +78,7 @@ the License.
         error-message="Variable name is not valid"
         on-change="_somethingChanged"></paper-input>
       <paper-input
-       class="variable-value"
+        class="variable-value"
         label="Variable value"
         value="{{item.value}}"
         no-label-float
@@ -94,8 +92,6 @@ the License.
       <paper-icon-button class="action-icon" icon="arc:edit" on-click="_openVariableEditor" title="Edit variable in the editor"></paper-icon-button>
       <paper-icon-button class="action-icon" icon="arc:close" on-click="_removeVariable" title="Remove variable"></paper-icon-button>
     </div>
-    <paper-toast text="Variables manager not found. Please, report an issue." id="noModel"></paper-toast>
-    <paper-toast text="" id="errorToast" duration="5000"></paper-toast>
   </template>
   <script>
   /**
@@ -126,7 +122,7 @@ the License.
    * @demo demo/index.html
    */
   class VariableItem extends Polymer.Element {
-    static get is() { return 'variable-item';}
+    static get is() {return 'variable-item';}
     static get properties() {
       return {
         /**
@@ -205,20 +201,20 @@ the License.
     // Requests `item` save in the database.
     _updateItem() {
       this._updatingModel = true;
+      const item = this.item;
+      if (!item._id) {
+        const gen = document.createElement('uuid-generator');
+        item._id = gen.generate();
+      }
       const e = new CustomEvent('variable-updated', {
         cancelable: true,
         bubbles: true,
         composed: true,
         detail: {
-          value: Object.assign({}, this.item)
+          value: Object.assign({}, item)
         }
       });
       this.dispatchEvent(e);
-
-      if (!e.defaultPrevented) {
-        this.$.noModel.opened = true;
-        return;
-      }
     }
     // Handler for the remove button click.
     _removeVariable() {
@@ -252,7 +248,7 @@ the License.
         bubbles: true,
         composed: true,
         detail: {
-          value: id
+          id
         }
       }));
     }

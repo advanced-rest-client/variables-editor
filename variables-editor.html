@@ -25,6 +25,7 @@ the License.
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../environment-selector/environment-selector.html">
+<link rel="import" href="../variables-consumer-mixin/variables-consumer-mixin.html">
 <link rel="import" href="variable-item.html">
 <dom-module id="variables-editor">
   <template>
@@ -121,20 +122,20 @@ the License.
           <paper-button on-click="_deleteEnvironment" class="remove-env" title="Remove environment and variables">Remove</paper-button>
         </template>
         <div class="flex"></div>
-        <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link" on-click="_openHelp">
+        <a href="https://restforchrome.blogspot.com/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link" on-click="_openHelp" title="Open variables documentation">
           <paper-button class="info-button">Help</paper-button>
         </a>
       </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
-          <paper-input id="editorEnvName" label="Environment name" error-message="Name is required" required auto-validate></paper-input>
+          <paper-input id="editorEnvName" label="Environment name" error-message="Name is required" on-keydown="_addEnvInput" required auto-validate></paper-input>
           <paper-button on-click="_addEnvironment" class="primary-button">Save environment</paper-button>
           <paper-button on-click="_cancelAddEnvironment" class="">Cancel</paper-button>
         </div>
       </iron-collapse>
     </section>
     <section hidden$="[[envEditorOpened]]">
-      <template is="dom-repeat" items="[[variables]]" id="repeater">
+      <template is="dom-repeat" items="[[_filtered]]" id="repeater">
         <variable-item item="[[item]]" on-empty-variable-remove="_removeEmptyVariable"></variable-item>
       </template>
       <template is="dom-if" if="[[!hasVariables]]">
@@ -217,28 +218,12 @@ the License.
    * @customElement
    * @polymer
    * @demo demo/index.html
+   * @appliesMixin ArcComponents.VariablesConsumerMixin
    */
-  class VariablesEditor extends Polymer.Element {
-    static get is() { return 'variables-editor'; }
+  class VariablesEditor extends ArcComponents.VariablesConsumerMixin(Polymer.Element) {
+    static get is() {return 'variables-editor';}
     static get properties() {
       return {
-        /**
-         * Currently selected environment.
-         */
-        environment: String,
-        /**
-         * List of available variables for the environment.
-         */
-        variables: Array,
-        /**
-         * Computed value, true is variables are available for current
-         * environment.
-         */
-        hasVariables: {
-          type: Boolean,
-          value: false,
-          computed: '_computeHasVariables(variables.*)'
-        },
         /**
          * Computed value, set to `true` if the environment can be removed.
          * Only `default` environment can't be deleted
@@ -251,179 +236,37 @@ the License.
         envEditorOpened: {
           type: Boolean,
           value: false
+        },
+
+        _filtered: {
+          type: Array,
+          computed: '_processVariables(variables.*)'
         }
       };
     }
 
-    constructor() {
-      super();
-      this._envUpdatedHandler = this._envUpdatedHandler.bind(this);
-      this._varDeletedHandler = this._varDeletedHandler.bind(this);
-      this._varUpdateHandler = this._varUpdateHandler.bind(this);
-      this._varListChangedHandler = this._varListChangedHandler.bind(this);
-    }
-
-    connectedCallback() {
-      super.connectedCallback();
-      window.addEventListener('environment-updated', this._envUpdatedHandler);
-      window.addEventListener('variable-deleted', this._varDeletedHandler);
-      window.addEventListener('variable-updated', this._varUpdateHandler);
-      window.addEventListener('variables-list-changed', this._varListChangedHandler);
-      Polymer.RenderStatus.afterNextRender(this, () => this.refresh());
-    }
-
-    disconnectedCallback() {
-      super.disconnectedCallback();
-      window.removeEventListener('environment-updated', this._envUpdatedHandler);
-      window.removeEventListener('variable-deleted', this._varDeletedHandler);
-      window.removeEventListener('variable-updated', this._varUpdateHandler);
-      window.removeEventListener('variables-list-changed', this._varListChangedHandler);
-    }
-
-    /**
-     * Refreshes the list of variables and environment on demand.
-     */
-    refresh() {
-      this._refreshVariables();
-      this._refreshEnvironment();
-    }
-    /**
-    * Dispatches `variable-list` custom event to ask variables manager
-    * for list of variables.
-     */
-    _refreshVariables() {
-      const e = new CustomEvent('variable-list', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {}
-      });
-      this.dispatchEvent(e);
-      if (!e.defaultPrevented) {
-        return;
-      }
-      const variables = e.detail.value;
-      if (!variables) {
-        return;
-      }
-      this.set('variables', this._processVariables(variables));
-    }
-    /**
-     * Dispatches `environment-current` custom event to ask variables manager
-     * for current environment.
-     */
-    _refreshEnvironment() {
-      const e = new CustomEvent('environment-current', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {}
-      });
-      this.dispatchEvent(e);
-      if (!e.defaultPrevented) {
-        return;
-      }
-      this.set('environment', e.detail.value);
+    static get observers() {
+      return [
+        '_processEnvSplices(environments.splices)'
+      ];
     }
     /**
      * Processes variables list returned by the variables manager.
      * Filters out variables that are set in platform environment.
      *
-     * @param {Array} variables List of variables received from the manager.
+     * @param {Object} record Change record
      * @return {Array} Updated list of variables.
      */
-    _processVariables(variables) {
+    _processVariables(record) {
+      const variables = record && record.base;
       if (!variables) {
         return variables;
       }
-      variables = variables.filter((item) => !item.sysVar);
-      return variables;
-    }
-
-    // Computes `hasVariables` property.
-    _computeHasVariables(record) {
-      return !!(record && record.base && record.base.length);
+      return variables.filter((item) => !item.sysVar);
     }
     // computes `allowRemove` property.
     _computeAllowRemove(environment) {
       return !!(environment && environment !== 'default');
-    }
-
-    // Handler for the `environment-updated` event.
-    _envUpdatedHandler(e) {
-      if (e.cancelable) {
-        return;
-      }
-      const env = e.detail.value;
-      this._checkUpdateEnvironment(env);
-    }
-
-    _checkUpdateEnvironment(updated) {
-      if (!this.__lastCreatedEnvironment) {
-        return;
-      }
-      if (updated && updated.name === this.__lastCreatedEnvironment) {
-        this.__lastCreatedEnvironment = undefined;
-        this.set('environment', updated.name);
-      }
-    }
-    // Handler for the `variable-deleted` event.
-    _varDeletedHandler(e) {
-      if (e.cancelable || !this.variables) {
-        return;
-      }
-      const id = e.detail.value;
-      const index = this.variables.findIndex((item) => item._id === id);
-      if (index === -1) {
-        return;
-      }
-      this.splice('variables', index, 1);
-      this.$.repeater.render();
-    }
-    // Handler for the `variable-updated` event.
-    _varUpdateHandler(e) {
-      if (e.cancelable) {
-        return;
-      }
-      if (!this.variables) {
-        return;
-      }
-      const env = e.detail.value;
-      if (env.sysVar) {
-        return;
-      }
-      if (!this.variables) {
-        this.set('variables', [env]);
-        this.$.repeater.render();
-        return;
-      }
-      let index = this.variables.findIndex((item) => item._id === env._id);
-      if (index === -1) {
-        // Here's a trick. When adding new variable it is not saved yet
-        // and we should check for a var with the same name.
-        index = this.variables.findIndex((item) =>
-          (!item._id && item.variable === env.variable));
-        if (index === -1) {
-          this.push('variables', env);
-        }
-      }
-      if (~index) {
-        this.set(['variables', index], env);
-      }
-      this.$.repeater.render();
-    }
-    // Handler for the `variables-list-changed` event.
-    _varListChangedHandler(e) {
-      if (e.cancelable) {
-        return;
-      }
-      const eventVars = e.detail.value;
-      let vars;
-      if (eventVars && eventVars.length) {
-        vars = eventVars.map((item) => Object.assign({}, item));
-      }
-      this.set('variables', this._processVariables(vars));
-      this.$.repeater.render();
     }
     // Opens environment editor.
     addEnvironment() {
@@ -442,14 +285,14 @@ the License.
       }
       const lowerName = name.toLowerCase();
       if (lowerName === 'default') {
-        this._toast('This name is reserved. Please, use different name');
+        this._toast('This name is reserved. Please, use different name.');
         this._sendGaEvent('Addind reserved name environment');
         return;
       }
       const envs = this.$.envSelector.environments || [];
       const index = envs.findIndex((i) => i.name.toLowerCase() === lowerName);
       if (!!~index) {
-        this._toast('Environment already exists. Please, use different name');
+        this._toast('Environment already exists. Please, use different name.');
         this._sendGaEvent('Addind existing environment');
         return;
       }
@@ -509,7 +352,7 @@ the License.
         composed: true,
         cancelable: true,
         detail: {
-          value: item._id
+          id: item._id
         }
       });
       this.dispatchEvent(e);
@@ -523,7 +366,6 @@ the License.
         this._toast(cause.message);
         this._sendGaError('Remove environment-' + cause.message);
       });
-      this.set('environment', 'default');
       this._sendGaEvent('Delete environment');
     }
     // Add new, empty variable.
@@ -537,7 +379,7 @@ the License.
       } else {
         this.push('variables', obj);
       }
-      this._sendGaEvent('Add variable');
+      this._sendGaEvent('Add variable form');
     }
     /**
      * Sends usage google analytics event
@@ -587,6 +429,8 @@ the License.
 
     /**
      * Opens documentation page for the module.
+     *
+     * @param {Event} e
      */
     _openHelp(e) {
       let url = e.currentTarget.href;
@@ -605,7 +449,24 @@ the License.
       e.stopPropagation();
       window.open(url);
     }
+    /**
+     * Checks for "enter" key to add environment.
+     * @param {KeyboardEvent} e
+     */
+    _addEnvInput(e) {
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        this._addEnvironment();
+      }
+    }
 
+    _processEnvSplices(record) {
+      const info = record && record.indexSplices && record.indexSplices[0];
+      if (!info || info.addedCount !== 1) {
+        return;
+      }
+      const name = info.object[info.index].name;
+      this.set('environment', name);
+    }
     /**
      * When an external URL is requested to open.
      * @event open-external-url
