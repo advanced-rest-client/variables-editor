@@ -51,5 +51,5 @@ declare namespace UiElements {
 }
 
 interface HTMLElementTagNameMap {
-  "variables-editor-dialog": UiElements.VariableEditorDialog;
+  "variable-editor-dialog": UiElements.VariableEditorDialog;
 }

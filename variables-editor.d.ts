@@ -22,6 +22,7 @@
 /// <reference path="../paper-button/paper-button.d.ts" />
 /// <reference path="../arc-icons/arc-icons.d.ts" />
 /// <reference path="../environment-selector/environment-selector.d.ts" />
+/// <reference path="../variables-consumer-mixin/variables-consumer-mixin.d.ts" />
 /// <reference path="variable-item.d.ts" />
 
 declare namespace UiElements {
@@ -84,23 +85,9 @@ declare namespace UiElements {
    * `--inline-fom-action-icon-color-hover` | Theme variable, color of the
    * delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
    */
-  class VariablesEditor extends Polymer.Element {
-
-    /**
-     * Currently selected environment.
-     */
-    environment: string|null|undefined;
-
-    /**
-     * List of available variables for the environment.
-     */
-    variables: any[]|null|undefined;
-
-    /**
-     * Computed value, true is variables are available for current
-     * environment.
-     */
-    readonly hasVariables: boolean|null|undefined;
+  class VariablesEditor extends
+    ArcComponents.VariablesConsumerMixin(
+    Polymer.Element) {
 
     /**
      * Computed value, set to `true` if the environment can be removed.
@@ -112,65 +99,21 @@ declare namespace UiElements {
      * True if the environment editor is opened.
      */
     envEditorOpened: boolean|null|undefined;
-    connectedCallback(): void;
-    disconnectedCallback(): void;
-
-    /**
-     * Refreshes the list of variables and environment on demand.
-     */
-    refresh(): void;
-
-    /**
-     * Dispatches `variable-list` custom event to ask variables manager
-     * for list of variables.
-     */
-    _refreshVariables(): void;
-
-    /**
-     * Dispatches `environment-current` custom event to ask variables manager
-     * for current environment.
-     */
-    _refreshEnvironment(): void;
+    readonly _filtered: any[]|null|undefined;
 
     /**
      * Processes variables list returned by the variables manager.
      * Filters out variables that are set in platform environment.
      *
-     * @param variables List of variables received from the manager.
+     * @param record Change record
      * @returns Updated list of variables.
      */
-    _processVariables(variables: any[]|null): any[]|null;
-
-    /**
-     * Computes `hasVariables` property.
-     */
-    _computeHasVariables(record: any): any;
+    _processVariables(record: object|null): any[]|null;
 
     /**
      * computes `allowRemove` property.
      */
     _computeAllowRemove(environment: any): any;
-
-    /**
-     * Handler for the `environment-updated` event.
-     */
-    _envUpdatedHandler(e: any): void;
-    _checkUpdateEnvironment(updated: any): void;
-
-    /**
-     * Handler for the `variable-deleted` event.
-     */
-    _varDeletedHandler(e: any): void;
-
-    /**
-     * Handler for the `variable-updated` event.
-     */
-    _varUpdateHandler(e: any): void;
-
-    /**
-     * Handler for the `variables-list-changed` event.
-     */
-    _varListChangedHandler(e: any): void;
 
     /**
      * Opens environment editor.
@@ -217,6 +160,17 @@ declare namespace UiElements {
      */
     _removeEmptyVariable(e: CustomEvent|null): void;
     _computeAddButtonHidden(envEditorOpened: any, hasVariables: any): any;
+
+    /**
+     * Opens documentation page for the module.
+     */
+    _openHelp(e: Event|null): void;
+
+    /**
+     * Checks for "enter" key to add environment.
+     */
+    _addEnvInput(e: KeyboardEvent|null): void;
+    _processEnvSplices(record: any): void;
   }
 }
 

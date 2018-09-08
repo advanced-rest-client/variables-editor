@@ -11,12 +11,10 @@
 /// <reference path="../polymer/types/polymer-element.d.ts" />
 /// <reference path="../paper-styles/paper-styles.d.ts" />
 /// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-input/paper-input-container.d.ts" />
-/// <reference path="../paper-input/paper-input-error.d.ts" />
-/// <reference path="../iron-input/iron-input.d.ts" />
 /// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-toast/paper-toast.d.ts" />
 /// <reference path="../paper-checkbox/paper-checkbox.d.ts" />
+/// <reference path="../uuid-generator/uuid-generator.d.ts" />
+/// <reference path="../paper-input/paper-input.d.ts" />
 /// <reference path="variable-editor-dialog.d.ts" />
 
 declare namespace UiElements {
