@@ -1,0 +1,367 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <link rel="import" href="../variable-item.html">
+  </head>
+  <body>
+
+    <test-fixture id="Basic">
+      <template>
+        <variable-item debounce-timeout="20"></variable-item>
+      </template>
+    </test-fixture>
+
+    <script>
+    suite('_dispatch()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Basic');
+      });
+
+      const eName = 'test-event';
+      const eDetail = 'test-detail';
+
+      test('Dispatches an event', () => {
+        const spy = sinon.spy();
+        element.addEventListener(eName, spy);
+        element._dispatch(eName);
+        assert.isTrue(spy.called);
+      });
+
+      test('Returns the event', () => {
+        const e = element._dispatch(eName);
+        assert.typeOf(e, 'customevent');
+      });
+
+      test('Event is cancelable by default', () => {
+        const e = element._dispatch(eName);
+        assert.isTrue(e.cancelable);
+      });
+
+      test('Event is composed', () => {
+        const e = element._dispatch(eName);
+        if (typeof e.composed !== 'undefined') {
+          assert.isTrue(e.composed);
+        }
+      });
+
+      test('Event bubbles', () => {
+        const e = element._dispatch(eName);
+        assert.isTrue(e.bubbles);
+      });
+
+      test('Event is not cancelable when set', () => {
+        const e = element._dispatch(eName, eDetail, false);
+        assert.isFalse(e.cancelable);
+      });
+
+      test('Event has detail', () => {
+        const e = element._dispatch(eName, eDetail);
+        assert.equal(e.detail, eDetail);
+      });
+    });
+
+    suite('_itemChanged()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Basic');
+      });
+
+      test('Sets _updatingModel to false', () => {
+        element._itemChanged();
+        assert.isFalse(element._updatingModel);
+      });
+
+      test('Does nothing when _isDirty is not set', () => {
+        const spy = sinon.spy(element, '_somethingChanged');
+        element._itemChanged();
+        assert.isFalse(spy.called);
+      });
+
+      test('Calls _somethingChanged() when _isDirty is set', () => {
+        const spy = sinon.spy(element, '_somethingChanged');
+        element._isDirty = true;
+        element.item = {};
+        element._itemChanged();
+        assert.isTrue(spy.called);
+      });
+    });
+
+    suite('_somethingChanged()', () => {
+      let element;
+      setup(() => {
+        element = fixture('Basic');
+      });
+
+      test('Sets _isDirty flag when model is being updated', () => {
+        element._updatingModel = true;
+        element._somethingChanged();
+        assert.isTrue(element._isDirty);
+      });
+
+      test('Will not run debouncer when already updating', () => {
+        element._updatingModel = true;
+        element._somethingChanged();
+        assert.isUndefined(element.__updatingVariableItemDebounce);
+      });
+
+      test('Will not run debouncer when no name and value', () => {
+        element.item = {};
+        element._somethingChanged();
+        assert.isUndefined(element.__updatingVariableItemDebounce);
+      });
+
+      test('Sets item enabled', () => {
+        element.item = {
+          variable: 'a',
+          value: 'b'
+        };
+        element.__updatingVariableItemDebounce = true;
+        element._somethingChanged();
+        assert.isTrue(element.item.enabled);
+      });
+
+      test('Will not set item enabled when id already set', () => {
+        element.item = {
+          variable: 'a',
+          value: 'b',
+          enabled: false,
+          _id: 'test'
+        };
+        element.__updatingVariableItemDebounce = true;
+        element._somethingChanged();
+        assert.isFalse(element.item.enabled);
+      });
+
+      test('Will not call _updateItem() when debouncer is running', (done) => {
+        element.item = {
+          variable: 'a',
+          value: 'b'
+        };
+        element.__updatingVariableItemDebounce = true;
+        element._somethingChanged();
+        const spy = sinon.spy(element, '_updateItem');
+        setTimeout(() => {
+          assert.isFalse(spy.called);
+          done();
+        }, element.debounceTimeout + 1);
+      });
+
+      test('Will call _updateItem() when debouncer is not running', (done) => {
+        element.item = {
+          variable: 'a',
+          value: 'b'
+        };
+        element._somethingChanged();
+        const spy = sinon.spy(element, '_updateItem');
+        setTimeout(() => {
+          assert.isTrue(spy.called);
+          done();
+        }, element.debounceTimeout + 1);
+      });
+
+      test('Sets __updatingVariableItemDebounce flag', (done) => {
+        element.item = {
+          variable: 'a',
+          value: 'b'
+        };
+        element._somethingChanged();
+        assert.isTrue(element.__updatingVariableItemDebounce);
+        setTimeout(() => {
+          done();
+        }, element.debounceTimeout + 1);
+      });
+
+      test('Clears __updatingVariableItemDebounce flag after', (done) => {
+        element.item = {
+          variable: 'a',
+          value: 'b'
+        };
+        element._somethingChanged();
+        setTimeout(() => {
+          assert.isFalse(element.__updatingVariableItemDebounce);
+          done();
+        }, element.debounceTimeout + 1);
+      });
+    });
+
+    suite('_updateItem()', () => {
+      let element;
+      let item;
+      setup(() => {
+        element = fixture('Basic');
+        item = {
+          variable: 'a',
+          value: 'b',
+          enabled: false,
+          _id: 'test'
+        };
+        element.item = item;
+      });
+
+      test('Sets _updatingModel flag', () => {
+        element._updateItem();
+        assert.isTrue(element._updatingModel);
+      });
+
+      test('Generates _id if not existing', () => {
+        delete element.item._id;
+        element._updateItem();
+        assert.typeOf(element.item._id, 'string');
+      });
+
+      test('Calls _dispatch()', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._updateItem();
+        assert.isTrue(spy.called);
+      });
+
+      test('Calls _dispatch() with event name', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._updateItem();
+        assert.equal(spy.args[0][0], 'variable-updated');
+      });
+
+      test('Calls _dispatch() with the item', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._updateItem();
+        assert.deepEqual(spy.args[0][1].value, item);
+      });
+
+      test('The item is a copy', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._updateItem();
+        assert.isFalse(spy.args[0][1].value === item);
+      });
+    });
+
+    suite('_removeVariable()', () => {
+      let element;
+      let item;
+      setup(() => {
+        element = fixture('Basic');
+        item = {
+          variable: 'a',
+          value: 'b',
+          enabled: false,
+          _id: 'test'
+        };
+        element.item = item;
+      });
+
+      test('Dispatches empty-variable-remove when no item _id', () => {
+        delete element.item._id;
+        const spy = sinon.spy();
+        element.addEventListener('empty-variable-remove', spy);
+        element._removeVariable();
+        assert.isTrue(spy.called);
+      });
+
+      test('Dispatches GA event', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._removeVariable();
+        assert.isTrue(spy.called);
+        assert.equal(spy.args[0][0], 'send-analytics');
+        assert.equal(spy.args[0][1].type, 'event');
+      });
+
+      test('Dispatches variable-deleted event', () => {
+        const spy = sinon.spy(element, '_dispatch');
+        element._removeVariable();
+        assert.isTrue(spy.called);
+        assert.equal(spy.args[1][0], 'variable-deleted');
+        assert.equal(spy.args[1][1].id, item._id);
+      });
+    });
+
+    suite('_openVariableEditor()', () => {
+      let element;
+      let item;
+      setup((done) => {
+        element = fixture('Basic');
+        item = {
+          variable: 'a',
+          value: 'b',
+          enabled: true
+        };
+        element.item = item;
+        flush(() => done());
+      });
+
+      test('Inserts editor into shadow DOM when never used', () => {
+        element._openVariableEditor();
+        const node = element.shadowRoot.querySelector('variable-editor-dialog');
+        assert.ok(node);
+      });
+
+      test('Reuses existing editor', () => {
+        element._openVariableEditor();
+        element._openVariableEditor();
+        const nodes = element.shadowRoot.querySelectorAll('variable-editor-dialog');
+        assert.equal(nodes.length, 1);
+      });
+
+      test('Sets editor value property', () => {
+        element._openVariableEditor();
+        const node = element.shadowRoot.querySelector('variable-editor-dialog');
+        assert.equal(node.value, item.value);
+      });
+
+      test('Renders dialog opened', () => {
+        element._openVariableEditor();
+        const node = element.shadowRoot.querySelector('variable-editor-dialog');
+        assert.isTrue(node.opened);
+      });
+    });
+
+    suite('_onVariableEditorClosed()', () => {
+      let element;
+      let item;
+      setup(() => {
+        element = fixture('Basic');
+        item = {
+          variable: 'a',
+          value: 'b',
+          enabled: false,
+          _id: 'test'
+        };
+        element.item = item;
+      });
+
+      test('Sets new value', () => {
+        element._onVariableEditorClosed({
+          detail: {
+            value: 'test'
+          }
+        });
+        assert.equal(element.item.value, 'test');
+      });
+
+      test('Calls _somethingChanged()', () => {
+        const spy = sinon.spy(element, '_somethingChanged');
+        element._onVariableEditorClosed({
+          detail: {
+            value: 'test'
+          }
+        });
+        assert.isTrue(spy.called);
+      });
+
+      test('Handles variable-editor-closed event', () => {
+        const spy = sinon.spy(element, '_somethingChanged');
+        element.dispatchEvent(new CustomEvent('variable-editor-closed', {
+          detail: {
+            value: 'test'
+          }
+        }));
+        assert.isTrue(spy.called);
+      });
+    });
+    </script>
+
+  </body>
+</html>
