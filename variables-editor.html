@@ -117,7 +117,7 @@ the License.
     <section>
       <div class="env-selector">
         <environment-selector id="envSelector" selected="{{environment}}"></environment-selector>
-        <paper-button on-click="addEnvironment" class="add-env" title="Add new environment">Add</paper-button>
+        <paper-button on-click="openAddEnvironmentForm" class="add-env" title="Add new environment">Add</paper-button>
         <template is="dom-if" if="[[allowRemove]]">
           <paper-button on-click="_deleteEnvironment" class="remove-env" title="Remove environment and variables">Remove</paper-button>
         </template>
@@ -128,9 +128,9 @@ the License.
       </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
-          <paper-input id="editorEnvName" label="Environment name" error-message="Name is required" on-keydown="_addEnvInput" required auto-validate></paper-input>
+          <paper-input id="editorEnvName" label="Environment name" on-keydown="_addEnvInput" required on-input="_revalidateEnvInput"></paper-input>
           <paper-button on-click="_addEnvironment" class="primary-button">Save environment</paper-button>
-          <paper-button on-click="_cancelAddEnvironment" class="">Cancel</paper-button>
+          <paper-button on-click="closeAddEnvironmentForm" class="">Cancel</paper-button>
         </div>
       </iron-collapse>
     </section>
@@ -142,7 +142,7 @@ the License.
         <div class="doc-frame">
           <h4 class="tutorial-title"><iron-icon icon="arc:code"></iron-icon><span class="tutorial-title-label">Upgrade request with variables</span></h4>
           <p>Put <code>${variableName}</code> into any request field and the value will be inserted at run time.</p>
-          <paper-button raised class="primary-button" on-click="_addVariable">add variable</paper-button>
+          <paper-button raised class="primary-button" on-click="addVariable">Add variable</paper-button>
           <p class="tutorial-link">
             <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="text-link" on-click="_openHelp">Learn more about variables.</a>
             <iron-icon icon="arc:open-in-new"></iron-icon>
@@ -151,7 +151,7 @@ the License.
       </template>
     </section>
     <section hidden$="[[_computeAddButtonHidden(envEditorOpened, hasVariables)]]">
-      <paper-button class="add-button add-var" on-click="_addVariable">add variable</paper-button>
+      <paper-button class="add-button add-var" on-click="addVariable">Add variable</paper-button>
     </section>
     <paper-toast text="" id="infoToast"></paper-toast>
   </template>
@@ -251,6 +251,79 @@ the License.
       ];
     }
     /**
+     * Dispatches bubbling and composed custom event.
+     * By default the event is cancelable until `cancelable` property is set to false.
+     * @param {String} type Event type
+     * @param {?any} detail A detail to set
+     * @param {?Boolean} cancelable When false the event is not cancelable.
+     * @return {CustomEvent}
+     */
+    _dispatch(type, detail, cancelable) {
+      if (typeof cancelable !== 'boolean') {
+        cancelable = true;
+      }
+      const e = new CustomEvent(type, {
+        bubbles: true,
+        composed: true,
+        cancelable,
+        detail
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
+    /**
+     * Sends environment-updated event to the model
+     * @param {Object} value Anvironment value to update.
+     * @return {CustomEvent}
+     */
+    _dispatchEnvUpdated(value) {
+      return this._dispatch('environment-updated', {
+        value
+      });
+    }
+    /**
+     * Sends environment-deleted event to the model
+     * @param {String} id ID of deleted environment
+     * @return {CustomEvent}
+     */
+    _dispatchEnvDeleted(id) {
+      return this._dispatch('environment-deleted', {
+        id
+      });
+    }
+    /**
+     * Sends usage google analytics event
+     * @param {String} action Action description
+     * @return {CustomEvent}
+     */
+    _sendGaEvent(action) {
+      return this._dispatch('send-analytics', {
+        type: 'event',
+        category: 'Variables editor',
+        action
+      }, false);
+    }
+    /**
+     * Sends error event to google analytics
+     * @param {String} message Exception message
+     * @return {CustomEvent}
+     */
+    _sendGaError(message) {
+      return this._dispatch('send-analytics', {
+        type: 'exception',
+        description: message,
+        fatal: false
+      }, false);
+    }
+    /**
+     * Shows toast with the message
+     * @param {String} message
+     */
+    _toast(message) {
+      this.$.infoToast.text = message;
+      this.$.infoToast.opened = true;
+    }
+    /**
      * Processes variables list returned by the variables manager.
      * Filters out variables that are set in platform environment.
      *
@@ -264,112 +337,147 @@ the License.
       }
       return variables.filter((item) => !item.sysVar);
     }
-    // computes `allowRemove` property.
+    /**
+     * Computes value for `allowRemove` property.
+     * @param {[type]} environment [description]
+     * @return {[type]} [description]
+     */
     _computeAllowRemove(environment) {
       return !!(environment && environment !== 'default');
     }
-    // Opens environment editor.
-    addEnvironment() {
+
+    /**
+     * Opens environment editor.
+     */
+    openAddEnvironmentForm() {
       this.envEditorOpened = true;
     }
-
-    _cancelAddEnvironment() {
+    /**
+     * Closes environment editor.
+     */
+    closeAddEnvironmentForm() {
       this.envEditorOpened = false;
     }
-    // Handler for the save action for add environment form.
-    _addEnvironment() {
-      const name = this.$.editorEnvName.value;
-      if (!name) {
-        this.$.editorEnvName.validate();
+    /**
+     * Finds environment model by name.
+     * The list of environments are stored in memory in environment selector.
+     * To simplify the logic this element won't hold it's own copy of environments list.
+     * @param {String} name Name of the environment to find.
+     * @return {Object|undefined} Environment model or undefined if not found.
+     */
+    _findEnvironment(name) {
+      const envs = this.$.envSelector.environments;
+      if (!envs || !envs.length) {
         return;
       }
       const lowerName = name.toLowerCase();
-      if (lowerName === 'default') {
-        this._toast('This name is reserved. Please, use different name.');
-        this._sendGaEvent('Addind reserved name environment');
-        return;
+      for (let i = 0, len = envs.length; i < len; i++) {
+        const tmp = envs[i] && envs[i].name;
+        if (!tmp) {
+          continue;
+        }
+        if (tmp.toLowerCase() === lowerName) {
+          return envs[i];
+        }
       }
-      const envs = this.$.envSelector.environments || [];
-      const index = envs.findIndex((i) => i.name.toLowerCase() === lowerName);
-      if (!!~index) {
-        this._toast('Environment already exists. Please, use different name.');
+    }
+    /**
+     * Validates user input when adding an environment.
+     * It renders a message to the user if input did not passed the validation.
+     * @param {String} name
+     * @return {Boolean} True if user input is valid.
+     */
+    _validateEnvironmentInput(name) {
+      if (!name) {
+        this.$.editorEnvName.errorMessage = 'Name is required.';
+        this.$.editorEnvName.validate();
+        return false;
+      }
+      const lowerName = name.toLowerCase();
+      if (lowerName === 'default') {
+        this.$.editorEnvName.errorMessage = 'This name is reserved. Please, use different name.';
+        this.$.editorEnvName.invalid = true;
+        this._sendGaEvent('Addind reserved name environment');
+        return false;
+      }
+      const env = this._findEnvironment(lowerName);
+      if (env) {
+        this.$.editorEnvName.errorMessage = 'Environment already exists. Please, use different name.';
+        this.$.editorEnvName.invalid = true;
         this._sendGaEvent('Addind existing environment');
+        return false;
+      }
+      return true;
+    }
+    /**
+     * Handler for the save action for add environment form.
+     * Validates user input and sends `environment-updated` event to the model.
+     *
+     * @return {Promise}
+     */
+    _addEnvironment() {
+      const name = this.$.editorEnvName.value;
+      if (!this._validateEnvironmentInput(name)) {
         return;
       }
       const obj = {
         name: name,
         created: Date.now()
       };
-      const e = new CustomEvent('environment-updated', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          value: obj
-        }
-      });
-      this.dispatchEvent(e);
+      const e = this._dispatchEnvUpdated(obj);
       if (!e.defaultPrevented) {
         this._toast('Variables manager not found. Please, report an issue.');
         this._sendGaError('Add environment - no manager');
         throw new Error('Variables manager not found.');
       }
-      e.detail.result
+
+      this.closeAddEnvironmentForm();
+      this._sendGaEvent('Add environment');
+
+      return e.detail.result
+      .then(() => {
+        this.$.editorEnvName.value = '';
+      })
       .catch((cause) => {
         this._toast(cause.message);
         this._sendGaError('Add environment-' + cause.message);
       });
-
-      this._cancelAddEnvironment();
-      this.__lastCreatedEnvironment = name;
-      this._sendGaEvent('Add environment');
     }
-    // Show toast with the message
-    _toast(message) {
-      this.$.infoToast.text = message;
-      this.$.infoToast.opened = true;
-    }
-    // Handler for the delete button.
+    /**
+     * Handler for the delete button.
+     * @return {Promise}
+     */
     _deleteEnvironment() {
-      if (this.environment === 'default') {
-        return;
+      const envName = this.environment;
+      if (envName === 'default') {
+        let msg = 'Unable to remove default environment';
+        this._toast(msg);
+        return Promise.reject(new Error(msg));
       }
-      const envs = this.$.envSelector.environments || [];
-      if (!envs) {
-        this._toast('The list of environments is empty.');
-        return;
+      const env = this._findEnvironment(envName);
+      if (!env) {
+        this._toast(`Model for ${envName} cannot be found.`);
+        let msg = 'Environment not om the list when deleting';
+        this._sendGaError(msg);
+        return Promise.reject(new Error(msg));
       }
-      const old = this.environment;
-      const oldLowerCase = old.toLowerCase();
-      const item = envs.find((i) => i.name.toLowerCase() === oldLowerCase);
-      if (!item) {
-        this._toast(`The environment ${old} is not in the list.`);
-        this._sendGaError('Envitonment not in the list when deleting');
-        return;
-      }
-      const e = new CustomEvent('environment-deleted', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          id: item._id
-        }
-      });
-      this.dispatchEvent(e);
+      const e = this._dispatchEnvDeleted(env._id);
       if (!e.defaultPrevented) {
         this._toast('Variables manager not found. Please, report an issue.');
         this._sendGaError('Remove environment - no manager');
-        throw new Error('Variables manager not found.');
+        return Promise.reject(new Error('Variables manager not found'));
       }
-      e.detail.result
+      this._sendGaEvent('Delete environment');
+      return e.detail.result
       .catch((cause) => {
         this._toast(cause.message);
-        this._sendGaError('Remove environment-' + cause.message);
+        this._sendGaError('Delete environment-' + cause.message);
       });
-      this._sendGaEvent('Delete environment');
     }
-    // Add new, empty variable.
-    _addVariable() {
+    /**
+     * Add new, empty variable.
+     */
+    addVariable() {
       const obj = {
         environment: this.environment,
         enabled: false
@@ -382,42 +490,12 @@ the License.
       this._sendGaEvent('Add variable form');
     }
     /**
-     * Sends usage google analytics event
-     * @param {String} action Action description
-     */
-    _sendGaEvent(action) {
-      this.dispatchEvent(new CustomEvent('send-analytics', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          type: 'event',
-          category: 'Variables editor',
-          action
-        }
-      }));
-    }
-    /**
-     * Sends error event to google analytics
-     * @param {String} message Exception message
-     */
-    _sendGaError(message) {
-      this.dispatchEvent(new CustomEvent('send-analytics', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          type: 'exception',
-          description: message,
-          fatal: false
-        }
-      }));
-    }
-    /**
      * Removes unsaved variable
      * @param {CustomEvent} e
      */
     _removeEmptyVariable(e) {
       const index = e.model.get('index');
-      if (index === -1) {
+      if (isNaN(index) || index < 0 || (!index && index !== 0)) {
         return;
       }
       this.splice('variables', index, 1);
@@ -431,23 +509,19 @@ the License.
      * Opens documentation page for the module.
      *
      * @param {Event} e
+     * @return {Window|undefined}
      */
     _openHelp(e) {
       let url = e.currentTarget.href;
-      const ev = new CustomEvent('open-external-url', {
-        bubbles: true,
-        cancelable: true,
-        detail: {
-          url: url
-        }
+      const ev = this._dispatch('open-external-url', {
+        url
       });
-      this.dispatchEvent(ev);
       if (ev.defaultPrevented) {
         return;
       }
       e.preventDefault();
       e.stopPropagation();
-      window.open(url);
+      return window.open(url);
     }
     /**
      * Checks for "enter" key to add environment.
@@ -466,6 +540,17 @@ the License.
       }
       const name = info.object[info.index].name;
       this.set('environment', name);
+    }
+    /**
+     * Validates user input when environment name change.
+     */
+    _revalidateEnvInput() {
+      if (!this.$.editorEnvName.validate()) {
+        const msg = 'Name is required.';
+        if (this.$.editorEnvName.errorMessage !== msg) {
+          this.$.editorEnvName.errorMessage = msg;
+        }
+      }
     }
     /**
      * When an external URL is requested to open.

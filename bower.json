@@ -39,10 +39,10 @@
     "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
     "iron-pages": "PolymerElements/iron-pages#^2.0.0",
-    "environment-selector": "advanced-rest-client/environment-selector#2.0.0-preview",
+    "environment-selector": "advanced-rest-client/environment-selector#^2.0.0",
     "paper-button": "PolymerElements/paper-button#^2.0.0",
-    "variables-consumer-mixin": "advanced-rest-client/variables-consumer-mixin#2.0.0-preview",
-    "uuid-generator": "advanced-rest-client/environment-selector#^2.0.0"
+    "variables-consumer-mixin": "advanced-rest-client/variables-consumer-mixin#^2.0.0",
+    "uuid-generator": "advanced-rest-client/uuid-generator#^2.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^3.0.1",
@@ -55,7 +55,8 @@
     "variables-manager": "advanced-rest-client/variables-manager#2.0.0-preview",
     "variables-evaluator": "advanced-rest-client/variables-evaluator#2.0.0-preview",
     "app-pouchdb": "PolymerElements/app-pouchdb#^2.0.0",
-    "web-animations-js": "web-animations/web-animations-js#^2.3"
+    "web-animations-js": "web-animations/web-animations-js#^2.3",
+    "jexl": "advanced-rest-client/Jexl#^2.0.0"
   },
   "ignore": [
     "**/.*",

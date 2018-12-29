@@ -139,6 +139,14 @@ the License.
           }
         },
         /**
+         * Number of milliseconds after which the item is persisted in the data
+         * store after any property change.
+         */
+        debounceTimeout: {
+          type: Number,
+          value: 350
+        },
+        /**
          * True if during the save another change occured and the item
          * schould be saved again.
          */
@@ -166,13 +174,38 @@ the License.
       this.removeEventListener('variable-editor-closed', this._onVariableEditorClosed);
     }
 
+    /**
+     * Dispatches bubbling and composed custom event.
+     * By default the event is cancelable until `cancelable` property is set to false.
+     * @param {String} type Event type
+     * @param {?any} detail A detail to set
+     * @param {?Boolean} cancelable When false the event is not cancelable.
+     * @return {CustomEvent}
+     */
+    _dispatch(type, detail, cancelable) {
+      if (typeof cancelable !== 'boolean') {
+        cancelable = true;
+      }
+      const e = new CustomEvent(type, {
+        bubbles: true,
+        composed: true,
+        cancelable,
+        detail
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
+    /**
+     * Called when item's `_rev` property changed (due to datastore update).
+     * It checks if between save action and now the user made changes in the editor
+     * and if so it updates the item again.
+     */
     _itemChanged() {
       this._updatingModel = false;
       if (this._isDirty) {
         this._somethingChanged();
       }
     }
-
     /**
      * To be called when any `item` property change.
      * Updates variable value.
@@ -194,11 +227,14 @@ the License.
       }
       this.__updatingVariableItemDebounce = true;
       setTimeout(() => {
-        this._updateItem();
         this.__updatingVariableItemDebounce = false;
-      }, 350);
+        this._updateItem();
+      }, this.debounceTimeout);
     }
-    // Requests `item` save in the database.
+    /**
+     * Sends event to data model to update the variable.
+     * @return {Promise}
+     */
     _updateItem() {
       this._updatingModel = true;
       const item = this.item;
@@ -206,53 +242,31 @@ the License.
         const gen = document.createElement('uuid-generator');
         item._id = gen.generate();
       }
-      const e = new CustomEvent('variable-updated', {
-        cancelable: true,
-        bubbles: true,
-        composed: true,
-        detail: {
-          value: Object.assign({}, item)
-        }
+      return this._dispatch('variable-updated', {
+        value: Object.assign({}, item)
       });
-      this.dispatchEvent(e);
     }
-    // Handler for the remove button click.
+    /**
+     * Handler for the remove button click.
+     * @return {Promise}
+     */
     _removeVariable() {
       const id = this.item._id;
       if (!id) {
-        this._dispatchEmptyVarRemove();
-        return;
+        return this._dispatch('empty-variable-remove', undefined, false);
       }
-      this._dispatchVarRemoved(id);
-      this.dispatchEvent(new CustomEvent('send-analytics', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          type: 'event',
-          category: 'Variables editor',
-          action: 'Delete variable'
-        }
-      }));
+      this._dispatch('send-analytics', {
+        type: 'event',
+        category: 'Variables editor',
+        action: 'Delete variable'
+      }, false);
+      return this._dispatch('variable-deleted', {
+        id
+      }, false);
     }
-
-    _dispatchEmptyVarRemove() {
-      this.dispatchEvent(new CustomEvent('empty-variable-remove', {
-        bubbles: false,
-        composed: true
-      }));
-    }
-
-    _dispatchVarRemoved(id) {
-      this.dispatchEvent(new CustomEvent('variable-deleted', {
-        cancelable: true,
-        bubbles: true,
-        composed: true,
-        detail: {
-          id
-        }
-      }));
-    }
-
+    /**
+     * Opens the variable editor dialog.
+     */
     _openVariableEditor() {
       let dialog = this.shadowRoot.querySelector('variable-editor-dialog');
       if (!dialog) {
@@ -262,7 +276,10 @@ the License.
       dialog.value = this.item.value;
       dialog.opened = true;
     }
-
+    /**
+     * Called when the editor dialog is closed and sets new value.
+     * @param {CustomEvent} e
+     */
     _onVariableEditorClosed(e) {
       this.set('item.value', e.detail.value);
       this._somethingChanged();

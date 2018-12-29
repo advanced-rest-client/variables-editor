@@ -1,14 +1,10 @@
 {
-  "name": "variables-editor",
+  "name": "@advanced-rest-client/variables-editor",
   "version": "2.0.0-preview",
   "license": "Apache-2.0",
   "description": "A variables editor element is an UI element to display existing variables and forms to edit them",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.1.1",
-    "bower": "^1.8.0"
-  },
-  "engines": {
-    "node": ">=0.10.0"
+    "@polymer/gen-typescript-declarations": "^1.6.0"
   },
   "private": false,
   "main": "variables-editor.html",

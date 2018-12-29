@@ -78,21 +78,21 @@ the License.
       <template is="dom-if" if="[[evaluated]]">
         <code>[[evaluated]]</code>
       </template>
-      <paper-tabs selected="{{selectedDoc}}">
+      <paper-tabs selected="{{selectedDoc}}" on-iron-select="_resized">
         <paper-tab>String</paper-tab>
         <paper-tab>Math</paper-tab>
         <paper-tab>Miscellaneous</paper-tab>
       </paper-tabs>
       <paper-dialog-scrollable>
         <section class="docs-list">
-          <dl>
-            <template is="dom-repeat" items="[[docs]]">
+          <dl on-click="_processFunctionInsertClick">
+            <template is="dom-repeat" items="[[docs]]" id="repeater">
               <div class="di">
                 <div class="dc">
                   <dt>[[item.name]]</dt>
                   <dd>[[item.doc]]</dd>
                 </div>
-                <paper-button raised on-click="_insertFunction">Use</paper-button>
+                <paper-button raised>Use</paper-button>
               </div>
             </template>
           </dl>
@@ -204,11 +204,11 @@ the License.
       }, {
         'name': 'Math.max',
         'doc': 'Returns the largest of zero or more numbers.',
-        'args': 1
+        'args': 2
       }, {
         'name': 'Math.min',
         'doc': 'Returns the smallest of zero or more numbers.',
-        'args': 1
+        'args': 2
       }, {
         'name': 'Math.pow',
         'doc': 'Returns base to the exponent power, that is, baseexponent.',
@@ -359,7 +359,9 @@ the License.
      * @demo demo/index.html
      */
     class VariableEditorDialog extends Polymer.Element {
-      static get is() { return 'variable-editor-dialog'; }
+      static get is() {
+        return 'variable-editor-dialog';
+      }
       static get properties() {
         return {
           /**
@@ -375,7 +377,9 @@ the License.
             observer: '_selectedDocChanged'
           },
           docs: Array,
-
+          /**
+           * Evaluated variable value
+           */
           evaluated: String
         };
       }
@@ -397,12 +401,16 @@ the License.
       }
 
       _evaluate() {
+        const value = this.value;
+        if (!value) {
+          return;
+        }
         const e = new CustomEvent('evaluate-variable', {
           cancelable: true,
           composed: true,
           bubbles: true,
           detail: {
-            value: this.value
+            value
           }
         });
         this.dispatchEvent(e);
@@ -425,27 +433,49 @@ the License.
         .catch((cause) => {
           this.$.errorToast.text = cause.message;
           this.$.errorToast.opened = true;
-          console.error(cause.message);
+          console.warn(cause.message);
         });
       }
+      /**
+       * Handler for list item cloick.
+       * Processes event if the target is the button.
+       * @param {ClickEvent} e
+       */
+      _processFunctionInsertClick(e) {
+        const target = e.target;
+        if (target.nodeName !== 'PAPER-BUTTON') {
+          return;
+        }
+        const instance = this.$.repeater.modelForElement(target);
+        if (!instance) {
+          return;
+        }
+        const model = instance.get('item');
+        this._insertFunction(model);
+      }
 
-      _insertFunction(e) {
-        const item = e.model.get('item');
-        let fn = item.name + '(';
+      _insertFunction(model) {
+        let fn = model.name + '(';
         let letters;
         if (this.selectedDoc === 1) {
           letters = ['x', 'y', 'z'];
         } else {
           letters = ['a', 'b', 'c'];
         }
-        letters.splice(item.args);
+        letters.splice(model.args);
         fn += letters.join(', ');
         fn += ')';
-
-        const expr = this.value + ' ' + fn;
+        let expr = this.value;
+        if (expr) {
+          expr += ' ';
+        }
+        expr += fn;
         this.set('value', expr);
       }
-
+      /**
+       * Hanlder for dialog's close event
+       * @param {CustomEvent} e
+       */
       _onClosed(e) {
         e.stopPropagation();
         if (e.detail.canceled || !e.detail.confirmed) {
@@ -458,6 +488,10 @@ the License.
             value: this.value
           }
         }));
+      }
+
+      _resized() {
+        this.shadowRoot.querySelector('paper-dialog').notifyResize();
       }
     }
     window.customElements.define(VariableEditorDialog.is, VariableEditorDialog);
