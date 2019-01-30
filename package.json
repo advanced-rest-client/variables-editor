@@ -1,6 +1,6 @@
 {
   "name": "@advanced-rest-client/variables-editor",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "Apache-2.0",
   "description": "A variables editor element is an UI element to display existing variables and forms to edit them",
   "devDependencies": {
