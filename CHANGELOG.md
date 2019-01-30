@@ -216,3 +216,16 @@
 
 
 
+## [2.0.1](https://github.com/advanced-rest-client/variables-editor/compare/2.0.0...2.0.1) (2019-01-30)
+
+
+### Fix
+
+* Fixing delete event ([dc63e74e5da26a0936235da95abaa617ec74229f](https://github.com/advanced-rest-client/variables-editor/commit/dc63e74e5da26a0936235da95abaa617ec74229f))
+
+### Update
+
+* Removing old CI files ([2bb11cedf76c971a6778bb1b7a0845253a913c51](https://github.com/advanced-rest-client/variables-editor/commit/2bb11cedf76c971a6778bb1b7a0845253a913c51))
+
+
+
