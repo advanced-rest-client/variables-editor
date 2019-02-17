@@ -4,7 +4,7 @@
   "license": "Apache-2.0",
   "description": "A variables editor element is an UI element to display existing variables and forms to edit them",
   "devDependencies": {
-    "@polymer/gen-typescript-declarations": "^1.6.0"
+    "@polymer/gen-typescript-declarations": "^1.6.1"
   },
   "private": false,
   "main": "variables-editor.html",
