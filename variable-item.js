@@ -11,16 +11,14 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { PolymerElement } from '../../@polymer/polymer/polymer-element.js';
-
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
 import '../../@polymer/paper-styles/paper-styles.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
 import '../../@polymer/paper-icon-button/paper-icon-button.js';
-import '../../@polymer/paper-checkbox/paper-checkbox.js';
-import '../../uuid-generator/uuid-generator.js';
+import '../../@polymer/paper-toggle-button/paper-toggle-button.js';
+import '../../@advanced-rest-client/uuid-generator/uuid-generator.js';
 import '../../@polymer/paper-input/paper-input.js';
 import './variable-editor-dialog.js';
-import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
 /**
  * # `variable-item`
  *
@@ -32,16 +30,8 @@ import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
  *
  * Custom property | Description | Default
  * ----------------|-------------|----------
- * `--variable-item` | Mixin applied to the element | `{}`
- * `--variable-item-name-input` | Mixin applied to the `paper-input`
- * for variable name | `{}`
- * `--variable-item-value-input` | Mixin applied to the `paper-input` for
- * variable value | `{}`
- * `--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
- * `--inline-fom-action-icon-color` | Theme variable, color of the delete
- * variable icon | `rgba(0, 0, 0, 0.74)`
- * `--inline-fom-action-icon-color-hover` | Theme variable, color of the
- * delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+ * `--inline-fom-action-icon-color` | Theme variable, color of the delete variable icon | `rgba(0, 0, 0, 0.74)`
+ * `--inline-fom-action-icon-color-hover` | Theme variable, color of the delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
  *
  * @memberof UiElements
  * @customElement
@@ -55,28 +45,35 @@ class VariableItem extends PolymerElement {
     :host {
       display: block;
       position: relative;
-      @apply --variable-item;
     }
 
     #container {
-      @apply --layout-horizontal;
-      @apply --layout-flex;
-      @apply --layout-end;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
     }
 
     .variable-name {
       margin-right: 12px;
-      @apply --variable-item-name-input;
     }
 
     .variable-value {
-      @apply --layout-flex;
-      @apply --variable-item-value-input;
-    }
-
-    paper-checkbox {
-      margin-bottom: 12px;
-      @apply --variable-item-checkbox;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
     }
 
     .action-icon {
@@ -93,16 +90,45 @@ class VariableItem extends PolymerElement {
     }
     </style>
     <div id="container">
-      <paper-checkbox checked="{{item.enabled}}" title="Enabled" on-change="_somethingChanged"></paper-checkbox>
-      <paper-input class="variable-name" label="Variable name" value="{{item.variable}}" no-label-float="" inline="" auto-validate="" required="" allowed-pattern="[a-zA-Z0-9_-]" prevent-invalid-input="" error-message="Variable name is not valid" on-change="_somethingChanged"></paper-input>
-      <paper-input class="variable-value" label="Variable value" value="{{item.value}}" no-label-float="" inline="" auto-validate="" required="" error-message="Variable name is not valid" on-change="_somethingChanged"></paper-input>
-      <paper-icon-button class="action-icon" icon="arc:edit" on-click="_openVariableEditor" title="Edit variable in the editor"></paper-icon-button>
-      <paper-icon-button class="action-icon" icon="arc:close" on-click="_removeVariable" title="Remove variable"></paper-icon-button>
-    </div>
-`;
+      <paper-toggle-button
+        checked="{{item.enabled}}"
+        title="Enabled"
+        on-change="_somethingChanged"></paper-toggle-button>
+      <paper-input
+        class="variable-name"
+        label="Variable name"
+        value="{{item.variable}}"
+        no-label-float=""
+        inline=""
+        auto-validate=""
+        required=""
+        allowed-pattern="[a-zA-Z0-9_-]"
+        prevent-invalid-input=""
+        error-message="Variable name is not valid"
+        on-change="_somethingChanged"></paper-input>
+      <paper-input
+        class="variable-value"
+        label="Variable value"
+        value="{{item.value}}"
+        no-label-float=""
+        inline=""
+        auto-validate=""
+        required=""
+        error-message="Variable name is not valid"
+        on-change="_somethingChanged"></paper-input>
+      <paper-icon-button
+        class="action-icon"
+        icon="arc:edit"
+        on-click="_openVariableEditor"
+        title="Edit variable in the editor"></paper-icon-button>
+      <paper-icon-button
+        class="action-icon"
+        icon="arc:close"
+        on-click="_removeVariable"
+        title="Remove variable"></paper-icon-button>
+    </div>`;
   }
 
-  static get is() {return 'variable-item';}
   static get properties() {
     return {
       /**
@@ -277,4 +303,4 @@ class VariableItem extends PolymerElement {
    * @event empty-variable-remove
    */
 }
-window.customElements.define(VariableItem.is, VariableItem);
+window.customElements.define('variable-item', VariableItem);

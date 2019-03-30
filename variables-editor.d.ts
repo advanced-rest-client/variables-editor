@@ -5,29 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   variables-editor.html
+ *   variables-editor.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/utils/render-status.d.ts" />
-/// <reference path="../paper-styles/paper-styles.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../iron-collapse/iron-collapse.d.ts" />
-/// <reference path="../iron-icon/iron-icon.d.ts" />
-/// <reference path="../paper-item/paper-item.d.ts" />
-/// <reference path="../paper-dropdown-menu/paper-dropdown-menu.d.ts" />
-/// <reference path="../paper-listbox/paper-listbox.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-toast/paper-toast.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../arc-icons/arc-icons.d.ts" />
-/// <reference path="../environment-selector/environment-selector.d.ts" />
-/// <reference path="../variables-consumer-mixin/variables-consumer-mixin.d.ts" />
-/// <reference path="variable-item.d.ts" />
 
 declare namespace UiElements {
 
@@ -55,42 +38,21 @@ declare namespace UiElements {
    *
    * Custom property | Description | Default
    * ----------------|-------------|----------
-   * `--variables-editor` | Mixin applied to the element | `{}`
    * `--variables-editor-add-color` | Color of the `add` button | `--primary-color`
-   * `--variables-editor-add-environment-color` | Color of the add environment
-   * icon button | `rgba(0, 0, 0, 0.54)`
-   * `--variables-editor-add-environment-color-hover | Color of the add environment
-   * icon button when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
-   * `--variables-editor-remove-env-color` | Color of the remove button (icon)
-   * | `rgba(0, 0, 0, 0.24)`
-   * `--variables-editor-remove-env-color-hover` | Color of the hovered remove
-   * button (icon) | `#e64a19`
+   * `--variables-editor-add-environment-color` | Color of the add environment icon button | `rgba(0, 0, 0, 0.54)`
+   * `--variables-editor-add-environment-color-hover | Color of the add environment icon button when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+   * `--variables-editor-remove-env-color` | Color of the remove button (icon) | `rgba(0, 0, 0, 0.24)`
+   * `--variables-editor-remove-env-color-hover` | Color of the hovered remove button (icon) | `#e64a19`
    * `--accent-color` | Background color of the primary action button | ``
    * `--primary-light-color` | Color of the primary action button | `#fff`
-   * `--variables-editor-docs-frame-content` | Mixin applied to the colored
-   * content container of the help section. | `{}`
-   * `--variables-editor-docs-frame-content-background` | Background color of the
-   * help section content container. | `#E1F5FE`
-   * `--arc-font-title` | Theme mixin, applied to the tutorial title | `{}`
-   * `--arc-font-body1` | Theme mixin, applied to text labels | `{}`
-   * `--variables-editor-primary-button-background-color` | Background color of
-   * the primary action button | `--accent-color`
-   * `--variables-editor-primary-button-color` | Color of the primary action
-   * button | `--primary-light-color` or `#fff`
-   * `--primary-button` | Mixin applied to the primary button | `{}`
-   * `--variable-item` | Mixin applied to the variable item container | `{}`
-   * `--variable-item-name-input` | Mixin applied to the `paper-input` for
-   * variable name | `{}`
-   * `--variable-item-value-input` | Mixin applied to the `paper-input` for
-   * variable value | `{}`
-   * `--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
-   * `--inline-fom-action-icon-color` | Theme variable, color of the delete
-   * variable icon | `rgba(0, 0, 0, 0.74)`
-   * `--inline-fom-action-icon-color-hover` | Theme variable, color of the
-   * delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+   * `--variables-editor-docs-frame-content-background` | Background color of the help section content container. | `#E1F5FE`
+   * `--variables-editor-primary-button-background-color` | Background color of the primary action button | `--accent-color`
+   * `--variables-editor-primary-button-color` | Color of the primary action button | `--primary-light-color` or `#fff`
+   * `--inline-fom-action-icon-color` | Theme variable, color of the delete variable icon | `rgba(0, 0, 0, 0.74)`
+   * `--inline-fom-action-icon-color-hover` | Theme variable, color of the delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
    */
   class VariablesEditor extends
-    ArcComponents.VariablesConsumerMixin(
+    VariablesConsumerMixin(
     Object) {
 
     /**
@@ -233,6 +195,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "variables-editor": UiElements.VariablesEditor;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "variables-editor": UiElements.VariablesEditor;
+  }
 }
+
+export {};

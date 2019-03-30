@@ -5,31 +5,19 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   variable-editor-dialog.html
+ *   variable-editor-dialog.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
 
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../paper-dialog/paper-dialog.d.ts" />
-/// <reference path="../paper-dialog-scrollable/paper-dialog-scrollable.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-toast/paper-toast.d.ts" />
-/// <reference path="../paper-tabs/paper-tab.d.ts" />
-/// <reference path="../paper-tabs/paper-tabs.d.ts" />
-/// <reference path="../iron-pages/iron-pages.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-
 declare namespace UiElements {
 
   /**
    * Dialog to edit a variable.
    */
-  class VariableEditorDialog extends Polymer.Element {
+  class VariableEditorDialog extends PolymerElement {
 
     /**
      * Value of the variable.
@@ -69,6 +57,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "variable-editor-dialog": UiElements.VariableEditorDialog;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "variable-editor-dialog": UiElements.VariableEditorDialog;
+  }
 }
+
+export {};

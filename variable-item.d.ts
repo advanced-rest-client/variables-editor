@@ -5,21 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   variable-item.html
+ *   variable-item.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../paper-styles/paper-styles.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-checkbox/paper-checkbox.d.ts" />
-/// <reference path="../uuid-generator/uuid-generator.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="variable-editor-dialog.d.ts" />
 
 declare namespace UiElements {
 
@@ -34,18 +25,10 @@ declare namespace UiElements {
    *
    * Custom property | Description | Default
    * ----------------|-------------|----------
-   * `--variable-item` | Mixin applied to the element | `{}`
-   * `--variable-item-name-input` | Mixin applied to the `paper-input`
-   * for variable name | `{}`
-   * `--variable-item-value-input` | Mixin applied to the `paper-input` for
-   * variable value | `{}`
-   * `--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
-   * `--inline-fom-action-icon-color` | Theme variable, color of the delete
-   * variable icon | `rgba(0, 0, 0, 0.74)`
-   * `--inline-fom-action-icon-color-hover` | Theme variable, color of the
-   * delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+   * `--inline-fom-action-icon-color` | Theme variable, color of the delete variable icon | `rgba(0, 0, 0, 0.74)`
+   * `--inline-fom-action-icon-color-hover` | Theme variable, color of the delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
    */
-  class VariableItem extends Polymer.Element {
+  class VariableItem extends PolymerElement {
 
     /**
      * A variable database object.
@@ -123,6 +106,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "variable-item": UiElements.VariableItem;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "variable-item": UiElements.VariableItem;
+  }
 }
+
+export {};

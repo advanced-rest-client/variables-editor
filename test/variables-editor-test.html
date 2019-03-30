@@ -21,6 +21,7 @@
 
     <script type="module">
     import '../variables-editor.js';
+    import sinon from '../../../sinon/pkg/sinon-esm.js';
     function setEnvironments(element, value) {
       const selector = element.shadowRoot.querySelector('#envSelector');
       selector.environments = value || [{name: 'test-name'}];

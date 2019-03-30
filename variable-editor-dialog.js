@@ -11,11 +11,10 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { PolymerElement } from '../../@polymer/polymer/polymer-element.js';
-
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
 import '../../@polymer/paper-dialog/paper-dialog.js';
 import '../../@polymer/paper-dialog-scrollable/paper-dialog-scrollable.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
 import '../../@polymer/paper-input/paper-input.js';
 import '../../@polymer/paper-icon-button/paper-icon-button.js';
 import '../../@polymer/paper-toast/paper-toast.js';
@@ -23,7 +22,6 @@ import '../../@polymer/paper-tabs/paper-tab.js';
 import '../../@polymer/paper-tabs/paper-tabs.js';
 import '../../@polymer/iron-pages/iron-pages.js';
 import '../../@polymer/paper-button/paper-button.js';
-import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
 const FnList = {
   'Math': [{
     'name': 'Math.abs',
@@ -284,18 +282,29 @@ class VariableEditorDialog extends PolymerElement {
     }
 
     .input {
-      @apply --layout-horizontal;
-      @apply --layout-center;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
     }
 
     .input paper-input {
-      @apply --layout-flex;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
     }
 
     .docs-list,
     paper-tabs {
       max-width: 600px;
-      @apply --paper-font-body1;
     }
 
     .docs-list {
@@ -303,13 +312,24 @@ class VariableEditorDialog extends PolymerElement {
     }
 
     .di {
-      @apply --layout-horizontal;
-      @apply --layout-center;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
       margin: 8px 0;
     }
 
     .dc {
-      @apply --layout-flex;
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
     }
 
     dt {

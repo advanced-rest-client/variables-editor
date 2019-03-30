@@ -11,11 +11,11 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 */
-import { PolymerElement } from '../../@polymer/polymer/polymer-element.js';
-
+import {PolymerElement} from '../../@polymer/polymer/polymer-element.js';
+import {VariablesConsumerMixin} from '../../@advanced-rest-client/variables-consumer-mixin/variables-consumer-mixin.js';
+import {html} from '../../@polymer/polymer/lib/utils/html-tag.js';
 import '../../@polymer/polymer/lib/utils/render-status.js';
 import '../../@polymer/paper-styles/paper-styles.js';
-import '../../@polymer/iron-flex-layout/iron-flex-layout.js';
 import '../../@polymer/iron-collapse/iron-collapse.js';
 import '../../@polymer/iron-icon/iron-icon.js';
 import '../../@polymer/paper-item/paper-item.js';
@@ -24,11 +24,9 @@ import '../../@polymer/paper-listbox/paper-listbox.js';
 import '../../@polymer/paper-icon-button/paper-icon-button.js';
 import '../../@polymer/paper-toast/paper-toast.js';
 import '../../@polymer/paper-button/paper-button.js';
-import '../../arc-icons/arc-icons.js';
-import '../../environment-selector/environment-selector.js';
-import '../../variables-consumer-mixin/variables-consumer-mixin.js';
+import '../../@advanced-rest-client/arc-icons/arc-icons.js';
+import '../../@advanced-rest-client/environment-selector/environment-selector.js';
 import './variable-item.js';
-import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
 /**
  * A variables editor is an element to render UI for `variables-manager`.
  *
@@ -53,54 +51,32 @@ import { html } from '../../@polymer/polymer/lib/utils/html-tag.js';
  *
  * Custom property | Description | Default
  * ----------------|-------------|----------
- * `--variables-editor` | Mixin applied to the element | `{}`
  * `--variables-editor-add-color` | Color of the `add` button | `--primary-color`
- * `--variables-editor-add-environment-color` | Color of the add environment
- * icon button | `rgba(0, 0, 0, 0.54)`
- * `--variables-editor-add-environment-color-hover | Color of the add environment
- * icon button when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
- * `--variables-editor-remove-env-color` | Color of the remove button (icon)
- * | `rgba(0, 0, 0, 0.24)`
- * `--variables-editor-remove-env-color-hover` | Color of the hovered remove
- * button (icon) | `#e64a19`
+ * `--variables-editor-add-environment-color` | Color of the add environment icon button | `rgba(0, 0, 0, 0.54)`
+ * `--variables-editor-add-environment-color-hover | Color of the add environment icon button when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+ * `--variables-editor-remove-env-color` | Color of the remove button (icon) | `rgba(0, 0, 0, 0.24)`
+ * `--variables-editor-remove-env-color-hover` | Color of the hovered remove button (icon) | `#e64a19`
  * `--accent-color` | Background color of the primary action button | ``
  * `--primary-light-color` | Color of the primary action button | `#fff`
- * `--variables-editor-docs-frame-content` | Mixin applied to the colored
- * content container of the help section. | `{}`
- * `--variables-editor-docs-frame-content-background` | Background color of the
- * help section content container. | `#E1F5FE`
- * `--arc-font-title` | Theme mixin, applied to the tutorial title | `{}`
- * `--arc-font-body1` | Theme mixin, applied to text labels | `{}`
- * `--variables-editor-primary-button-background-color` | Background color of
- * the primary action button | `--accent-color`
- * `--variables-editor-primary-button-color` | Color of the primary action
- * button | `--primary-light-color` or `#fff`
- * `--primary-button` | Mixin applied to the primary button | `{}`
- * `--variable-item` | Mixin applied to the variable item container | `{}`
- * `--variable-item-name-input` | Mixin applied to the `paper-input` for
- * variable name | `{}`
- * `--variable-item-value-input` | Mixin applied to the `paper-input` for
- * variable value | `{}`
- * `--variable-item-checkbox` | Mixin applied to the state checkbox | `{}`
- * `--inline-fom-action-icon-color` | Theme variable, color of the delete
- * variable icon | `rgba(0, 0, 0, 0.74)`
- * `--inline-fom-action-icon-color-hover` | Theme variable, color of the
- * delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
+ * `--variables-editor-docs-frame-content-background` | Background color of the help section content container. | `#E1F5FE`
+ * `--variables-editor-primary-button-background-color` | Background color of the primary action button | `--accent-color`
+ * `--variables-editor-primary-button-color` | Color of the primary action button | `--primary-light-color` or `#fff`
+ * `--inline-fom-action-icon-color` | Theme variable, color of the delete variable icon | `rgba(0, 0, 0, 0.74)`
+ * `--inline-fom-action-icon-color-hover` | Theme variable, color of the delete variable icon when hovering | `--accent-color` or `rgba(0, 0, 0, 0.74)`
  *
  * @memberof UiElements
  * @customElement
  * @polymer
  * @demo demo/index.html
- * @appliesMixin ArcComponents.VariablesConsumerMixin
+ * @appliesMixin VariablesConsumerMixin
  */
-class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElement) {
+class VariablesEditor extends VariablesConsumerMixin(PolymerElement) {
   static get template() {
     return html`
     <style>
-     :host {
+    :host {
       display: block;
       padding: 12px;
-      @apply --variables-editor;
       --button-transition: color 0.2s linear;
     }
 
@@ -112,13 +88,21 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
     .primary-button {
       background-color: var(--variables-editor-primary-button-background-color, var(--accent-color));
       color: var(--variables-editor-primary-button-color, var(--primary-light-color, #fff));
-      @apply --primary-button;
     }
 
     .env-selector {
-      @apply --layout-horizontal;
-      @apply --layout-end;
-      @apply --layout-wrap;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+      -ms-flex-align: end;
+      -webkit-align-items: flex-end;
+      align-items: flex-end;
+      -ms-flex-wrap: wrap;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
       margin-bottom: 20px;
     }
 
@@ -135,12 +119,15 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
     .doc-frame {
       padding: 24px;
       background-color: var(--variables-editor-docs-frame-content-background, #E1F5FE);
-      @apply --arc-font-body1;
-      @apply --variables-editor-docs-frame-content;
+      font-size: var(--arc-font-body1-font-size);
+      font-weight: var(--arc-font-body1-font-weight);
+      line-height: var(--arc-font-body1-line-height);
     }
 
     .flex {
-      @apply --layout-flex;
+      -ms-flex: 1 1 auto;
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
     }
 
     .add-editor {
@@ -149,7 +136,6 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
       padding-left: 12px;
       padding-right: 12px;
       padding-bottom: 20px;
-      @apply --variables-editor-add-environment-content;
     }
 
     #editorEnvName {
@@ -158,7 +144,12 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
 
     .tutorial-title {
       margin-top: 0;
-      @apply --arc-font-title;
+      white-space: var(--arc-font-nowrap-white-space);
+      overflow: var(--arc-font-nowrap-overflow);
+      text-overflow: var(--arc-font-nowrap-text-overflow);
+      font-size: var(--arc-font-title-font-size);
+      font-weight: var(--arc-font-title-font-weight);
+      line-height: var(--arc-font-title-line-height);
     }
 
     .tutorial-title-label {
@@ -186,16 +177,29 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
         <environment-selector id="envSelector" selected="{{environment}}"></environment-selector>
         <paper-button on-click="openAddEnvironmentForm" class="add-env" title="Add new environment">Add</paper-button>
         <template is="dom-if" if="[[allowRemove]]">
-          <paper-button on-click="_deleteEnvironment" class="remove-env" title="Remove environment and variables">Remove</paper-button>
+          <paper-button
+            on-click="_deleteEnvironment"
+            class="remove-env"
+            title="Remove environment and variables">Remove</paper-button>
         </template>
         <div class="flex"></div>
-        <a href="https://restforchrome.blogspot.com/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="app-link" on-click="_openHelp" title="Open variables documentation">
+        <a
+          href="https://restforchrome.blogspot.com/2016/11/variables-and-environments-in-advanced.html"
+          target="_blank"
+          class="app-link"
+          on-click="_openHelp"
+          title="Open variables documentation">
           <paper-button class="info-button">Help</paper-button>
         </a>
       </div>
       <iron-collapse opened="[[envEditorOpened]]">
         <div class="add-editor">
-          <paper-input id="editorEnvName" label="Environment name" on-keydown="_addEnvInput" required="" on-input="_revalidateEnvInput"></paper-input>
+          <paper-input
+            id="editorEnvName"
+            label="Environment name"
+            on-keydown="_addEnvInput"
+            required=""
+            on-input="_revalidateEnvInput"></paper-input>
           <paper-button on-click="_addEnvironment" class="primary-button">Save environment</paper-button>
           <paper-button on-click="closeAddEnvironmentForm" class="">Cancel</paper-button>
         </div>
@@ -207,11 +211,18 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
       </template>
       <template is="dom-if" if="[[!hasVariables]]">
         <div class="doc-frame">
-          <h4 class="tutorial-title"><iron-icon icon="arc:code"></iron-icon><span class="tutorial-title-label">Upgrade request with variables</span></h4>
+          <h4 class="tutorial-title">
+            <iron-icon icon="arc:code"></iron-icon>
+            <span class="tutorial-title-label">Upgrade request with variables</span>
+          </h4>
           <p>Put <code>\${variableName}</code> into any request field and the value will be inserted at run time.</p>
           <paper-button raised="" class="primary-button" on-click="addVariable">Add variable</paper-button>
           <p class="tutorial-link">
-            <a href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html" target="_blank" class="text-link" on-click="_openHelp">Learn more about variables.</a>
+            <a
+              href="https://restforchrome.blogspot.co.uk/2016/11/variables-and-environments-in-advanced.html"
+              target="_blank"
+              class="text-link"
+              on-click="_openHelp">Learn more about variables.</a>
             <iron-icon icon="arc:open-in-new"></iron-icon>
           </p>
         </div>
@@ -224,7 +235,6 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
 `;
   }
 
-  static get is() {return 'variables-editor';}
   static get properties() {
     return {
       /**
@@ -561,4 +571,4 @@ class VariablesEditor extends ArcComponents.VariablesConsumerMixin(PolymerElemen
    * @param {url}
    */
 }
-window.customElements.define(VariablesEditor.is, VariablesEditor);
+window.customElements.define('variables-editor', VariablesEditor);
