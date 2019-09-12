@@ -12,9 +12,9 @@ A variables editor element is an UI element to display existing variables and fo
 
 This component works with:
 
-- variables-model - Storing / restoring data from the data store
-- variables-manager - Managing environments and variables
-- variables-evaluator - Evaluates variables into values
+-   variables-model - Storing / restoring data from the data store
+-   variables-manager - Managing environments and variables
+-   variables-evaluator - Evaluates variables into values
 
 This components can be replaced with other logic with compatible API.
 
@@ -26,10 +26,6 @@ and at build time it would produce multiple copies of the library.
 
 This element, when installed locally, installs Jexl and produces local copy of the library to be used with demo page.
 
-### API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
-
 ## Usage
 
 ### Installation
@@ -37,54 +33,45 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/variables-editor
 ```
 
-### In an html file
-
-```html
-<html>
-  <head>
-    <script type="module">
-      import './node_odules/@advanced-rest-client/variables-editor/variables-editor.js';
-    </script>
-  </head>
-  <body>
-    <variables-editor></variables-editor>
-  </body>
-</html>
-```
-
-### In a Polymer 3 element
-
 ```js
-import {PolymerElement, html} from './node_odules/@polymer/polymer';
+import { LitElement, html } from 'lit-element';
 import './node_odules/@advanced-rest-client/variables-editor/variables-editor.js';
 
-class SampleElement extends PolymerElement {
-  static get template() {
+class SampleElement extends LitElement {
+  render() {
     return html`
     <variables-editor></variables-editor>
+
+    <variables-model></variables-model>
+    <variables-manager></variables-manager>
+    <variables-evaluator></variables-evaluator>
     `;
   }
 }
 customElements.define('sample-element', SampleElement);
 ```
 
-### Installation
+
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/variables-editor
-cd api-url-editor
+cd variables-editor
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
 
 ```sh
-polymer serve --npm
-open http://127.0.0.1:<port>/demo/
+npm start
 ```
 
 ### Running the tests
+
 ```sh
-polymer test --npm
+npm test
 ```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

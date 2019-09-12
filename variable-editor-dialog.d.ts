@@ -10,58 +10,5 @@
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
-// tslint:disable:no-any describes the API as best we are able today
 
-declare namespace UiElements {
-
-  /**
-   * Dialog to edit a variable.
-   */
-  class VariableEditorDialog extends PolymerElement {
-
-    /**
-     * Value of the variable.
-     */
-    value: string|null|undefined;
-
-    /**
-     * True if the dialog should be opened.
-     */
-    opened: boolean|null|undefined;
-
-    /**
-     * Selected documentation page
-     */
-    selectedDoc: number|null|undefined;
-    docs: any[]|null|undefined;
-
-    /**
-     * Evaluated variable value
-     */
-    evaluated: string|null|undefined;
-    _selectedDocChanged(selectedDoc: any): void;
-    _evaluate(): void;
-
-    /**
-     * Handler for list item cloick.
-     * Processes event if the target is the button.
-     */
-    _processFunctionInsertClick(e: ClickEvent|null): void;
-    _insertFunction(model: any): void;
-
-    /**
-     * Hanlder for dialog's close event
-     */
-    _onClosed(e: CustomEvent|null): void;
-    _resized(): void;
-  }
-}
-
-declare global {
-
-  interface HTMLElementTagNameMap {
-    "variable-editor-dialog": UiElements.VariableEditorDialog;
-  }
-}
-
-export {};
+import {VariableEditorDialog} from './src/VariableEditorDialog.js';
