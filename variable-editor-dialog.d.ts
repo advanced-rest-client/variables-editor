@@ -5,70 +5,10 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   variable-editor-dialog.html
+ *   variable-editor-dialog.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
-// tslint:disable:no-any describes the API as best we are able today
 
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../paper-dialog/paper-dialog.d.ts" />
-/// <reference path="../paper-dialog-scrollable/paper-dialog-scrollable.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
-/// <reference path="../paper-toast/paper-toast.d.ts" />
-/// <reference path="../paper-tabs/paper-tab.d.ts" />
-/// <reference path="../paper-tabs/paper-tabs.d.ts" />
-/// <reference path="../iron-pages/iron-pages.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-
-declare namespace UiElements {
-
-  /**
-   * Dialog to edit a variable.
-   */
-  class VariableEditorDialog extends Polymer.Element {
-
-    /**
-     * Value of the variable.
-     */
-    value: string|null|undefined;
-
-    /**
-     * True if the dialog should be opened.
-     */
-    opened: boolean|null|undefined;
-
-    /**
-     * Selected documentation page
-     */
-    selectedDoc: number|null|undefined;
-    docs: any[]|null|undefined;
-
-    /**
-     * Evaluated variable value
-     */
-    evaluated: string|null|undefined;
-    _selectedDocChanged(selectedDoc: any): void;
-    _evaluate(): void;
-
-    /**
-     * Handler for list item cloick.
-     * Processes event if the target is the button.
-     */
-    _processFunctionInsertClick(e: ClickEvent|null): void;
-    _insertFunction(model: any): void;
-
-    /**
-     * Hanlder for dialog's close event
-     */
-    _onClosed(e: CustomEvent|null): void;
-    _resized(): void;
-  }
-}
-
-interface HTMLElementTagNameMap {
-  "variable-editor-dialog": UiElements.VariableEditorDialog;
-}
+import {VariableEditorDialog} from './src/VariableEditorDialog.js';
