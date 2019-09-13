@@ -248,3 +248,12 @@
 
 
 
+## [3.0.1](https://github.com/advanced-rest-client/variables-editor/compare/2.0.0...3.0.1) (2019-09-13)
+
+
+### Bug Fixes
+
+* adding missing declared properties ([e969072](https://github.com/advanced-rest-client/variables-editor/commit/e969072))
+
+
+
