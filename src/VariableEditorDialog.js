@@ -168,7 +168,15 @@ export class VariableEditorDialog extends AnypointDialog {
       /**
        * Evaluated variable value
        */
-      evaluated: { type: String }
+      evaluated: { type: String },
+      /**
+       * Enables compatibility with Anypoint platform
+       */
+      compatibility: { type: Boolean },
+      /**
+       * Enables Material Design Outlined inputs
+       */
+      outlined: { type: Boolean }
     };
   }
 
