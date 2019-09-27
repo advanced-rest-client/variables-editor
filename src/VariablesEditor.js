@@ -289,27 +289,9 @@ export class VariablesEditor extends VariablesConsumerMixin(LitElement) {
   constructor() {
     super();
     this.selectedDoc = 0;
-    this._variablesHandler = this._variablesHandler.bind(this);
   }
 
-  connectedCallback() {
-    /* istanbul ignore else */
-    if (super.connectedCallback) {
-      super.connectedCallback();
-    }
-    this.addEventListener('variables-changed', this._variablesHandler);
-  }
-
-  disconnectedCallback() {
-    /* istanbul ignore else */
-    if (super.disconnectedCallback) {
-      super.disconnectedCallback();
-    }
-    this.removeEventListener('variables-changed', this._variablesHandler);
-  }
-
-  _variablesHandler(e) {
-    const variables = e.detail.value;
+  _variablesChanged(variables) {
     if (!variables) {
       this._filtered = undefined;
       return;

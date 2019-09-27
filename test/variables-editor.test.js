@@ -190,36 +190,27 @@ describe('<variables-editor>', function() {
     });
   });
 
-  describe('variables-changed event', () => {
+  describe('_variablesChanged()', () => {
     let element;
     beforeEach(async () => {
       element = await basicFixture();
     });
 
-    function fire(element, value) {
-      const e = new CustomEvent('variables-changed', {
-        detail: {
-          value
-        }
-      });
-      element.dispatchEvent(e);
-    }
-
     it('sets _filtered undefined when no value', () => {
       element._filtered = [];
-      fire(element);
+      element._variablesChanged();
       assert.isUndefined(element._filtered);
     });
 
     it('sets _filtered variables', () => {
       const vars = [{ variable: 'v1' }, { variable: 'v2' }];
-      fire(element, vars);
+      element._variablesChanged(vars);
       assert.deepEqual(element._filtered, vars);
     });
 
     it('Removes system variables', () => {
       const vars = [{ variable: 'v1' }, { variable: 'v2', sysVar: true }];
-      fire(element, vars);
+      element._variablesChanged(vars);
       assert.deepEqual(element._filtered, [{ variable: 'v1' }]);
     });
   });
