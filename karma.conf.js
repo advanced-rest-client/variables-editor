@@ -36,27 +36,17 @@ module.exports = (config) => {
      coverageIstanbulReporter: {
        thresholds: {
          global: {
-           statements: 55,
-           branches: 40,
-           functions: 40,
-           lines: 80
-         },
-         each: {
            statements: 80,
-           lines: 80,
            branches: 80,
            functions: 90,
-           overrides: {
-             'dev-lib/**/*.js': {
-               statements: 0,
-               lines: 0,
-               branches: 0,
-               functions: 0
-             }
-           }
-         }
+           lines: 80
+         },
        }
      },
+
+     exclude: [
+       'dev-lib/*.js'
+     ],
    })
  );
  return config;
