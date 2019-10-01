@@ -55,6 +55,8 @@ export class VariableItem extends LitElement {
     .icon {
       width: 24px;
       height: 24px;
+      display: inline-block;
+      fill: currentColor;
     }
     `
   }
