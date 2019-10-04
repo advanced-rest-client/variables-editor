@@ -150,23 +150,6 @@ export class VariableItem extends LitElement {
     };
   }
 
-  get item() {
-    return this._item;
-  }
-
-  set item(value) {
-    const old = this._item;
-    /* istanbul ignore if */
-    if (old === value) {
-      return;
-    }
-    this._item = value;
-    this.requestUpdate('loading', old);
-    if (value && value._rev) {
-      this._itemChanged();
-    }
-  }
-
   constructor() {
     super();
     this.debounceTimeout = 350;
@@ -209,17 +192,6 @@ export class VariableItem extends LitElement {
     });
     this.dispatchEvent(e);
     return e;
-  }
-  /**
-   * Called when item's `_rev` property changed (due to datastore update).
-   * It checks if between save action and now the user made changes in the editor
-   * and if so it updates the item again.
-   */
-  _itemChanged() {
-    this._updatingModel = false;
-    if (this._isDirty) {
-      this._somethingChanged();
-    }
   }
   /**
    * To be called when any `item` property change.

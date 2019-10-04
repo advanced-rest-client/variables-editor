@@ -1,5 +1,4 @@
 import { fixture, assert, aTimeout } from '@open-wc/testing';
-import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
 import * as sinon from 'sinon/pkg/sinon-esm.js';
 import '../variable-item.js';
 
@@ -54,40 +53,6 @@ describe('<variable-item>', function() {
     it('Event has detail', () => {
       const e = element._dispatch(eName, eDetail);
       assert.equal(e.detail, eDetail);
-    });
-  });
-
-  describe('_itemChanged()', () => {
-    let element;
-    beforeEach(async () => {
-      element = await basicFixture();
-    });
-
-    it('Sets _updatingModel to false', () => {
-      element._itemChanged();
-      assert.isFalse(element._updatingModel);
-    });
-
-    it('Does nothing when _isDirty is not set', () => {
-      const spy = sinon.spy(element, '_somethingChanged');
-      element._itemChanged();
-      assert.isFalse(spy.called);
-    });
-
-    it('Calls _somethingChanged() when _isDirty is set', () => {
-      const spy = sinon.spy(element, '_somethingChanged');
-      element._isDirty = true;
-      element.item = {};
-      element._itemChanged();
-      assert.isTrue(spy.called);
-    });
-
-    it('is called when enabled state is toggled', () => {
-      element.item = {};
-      const spy = sinon.spy(element, '_somethingChanged');
-      const node = element.shadowRoot.querySelector('anypoint-switch');
-      MockInteractions.tap(node);
-      assert.isTrue(spy.called);
     });
   });
 
