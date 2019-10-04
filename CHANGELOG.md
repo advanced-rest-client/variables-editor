@@ -282,3 +282,18 @@
 
 
 
+## [3.0.4](https://github.com/advanced-rest-client/variables-editor/compare/2.0.0...3.0.4) (2019-10-04)
+
+
+### Bug Fixes
+
+* adding missing declared properties ([e969072](https://github.com/advanced-rest-client/variables-editor/commit/e969072))
+* fixing audit errors ([a5d68c2](https://github.com/advanced-rest-client/variables-editor/commit/a5d68c2))
+
+
+### Features
+
+* **styles:** updating icon styles for color ([d896cad](https://github.com/advanced-rest-client/variables-editor/commit/d896cad))
+
+
+
