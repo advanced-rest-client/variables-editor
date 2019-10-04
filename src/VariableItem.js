@@ -222,16 +222,24 @@ export class VariableItem extends LitElement {
    * Sends event to data model to update the variable.
    * @return {Promise}
    */
-  _updateItem() {
+  async _updateItem() {
     this._updatingModel = true;
     const item = this.item;
     if (!item._id) {
       const gen = document.createElement('uuid-generator');
       item._id = gen.generate();
     }
-    return this._dispatch('variable-updated', {
+    const e = this._dispatch('variable-updated', {
       value: Object.assign({}, item)
     });
+    let result;
+    try {
+      result = await e.detail.result;
+    } catch (e) {
+      // ..
+    }
+    this._updatingModel = false;
+    return result;
   }
   /**
    * Handler for the remove button click.

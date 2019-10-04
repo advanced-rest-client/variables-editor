@@ -197,6 +197,11 @@ describe('<variable-item>', function() {
       element._updateItem();
       assert.isFalse(spy.args[0][1].value === item);
     });
+
+    it('resets _updatingModel', async () => {
+      await element._updateItem();
+      assert.isFalse(element._updatingModel);
+    });
   });
 
   describe('_removeVariable()', () => {
